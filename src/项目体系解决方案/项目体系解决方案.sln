@@ -6,16 +6,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySoft.Project", "..\明源整体解决方案\MySoft.Project\MySoft.Project.csproj", "{CA53A269-00C3-420B-8B9D-BDAB07B226B3}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 1
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://10.5.10.73:8080/tfs/beijing
-		SccProjectUniqueName0 = ..\\明源整体解决方案\\Map\\Project\\Project.csproj
-		SccProjectName0 = $/北京二组erp303sp4专属/ERP303SP4/源代码/分支1/明源整体解决方案/Map/Project
-		SccAuxPath0 = http://10.5.10.73:8080/tfs/beijing
-		SccLocalPath0 = ..\\明源整体解决方案\\Map\\Project
-		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
