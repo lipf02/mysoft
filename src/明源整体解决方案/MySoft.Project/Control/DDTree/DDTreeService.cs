@@ -75,7 +75,7 @@ namespace MySoft.Project.Control
         {        //整棵公司树
             string strSQL = "SELECT OrderHierarchyCode AS Code,BUGUID AS GUID,BUName AS Name,CASE WHEN IsEndCompany=1 THEN '1' ELSE '0' END AS IsEndCompany, Level, '0' AS IsShow FROM myBusinessUnit WHERE BUType = 0 ORDER BY OrderHierarchyCode";
             DataTable dtBU = DBHelper.GetDataTable(strSQL);
-
+            userguid = userguid ?? CurrentUser.Current.UserGUID;
             //根据用户岗位获取有权限的公司
             if ((bool)ReflectionHelper.InvokeMethod("Mysoft.Map.Application.Security.User.IsAdmin", "Mysoft.Map.Core", userguid))
             {

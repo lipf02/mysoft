@@ -49,7 +49,7 @@ my.project.invokeMethod = function(option, callback) {
     option = option || {}
     data = option.data || option;
     var serviceInfo = option.serviceInfo;
-    return my.ajax.post(serviceInfo, data, callback);
+    return my.project.post(serviceInfo, data, callback);
 
 }
 my.project.post = function(invokeMethod, data, callback) {
@@ -58,7 +58,7 @@ my.project.post = function(invokeMethod, data, callback) {
         data = null;
     }
     data = data || {};
-    serverUrl =data.serverUrl || '/project/ajax.aspx';
+    serverUrl = data.serverUrl || '/project/ajax.aspx';
     var async = callback ? true : false;
     var returnValue;
     var ajaxdone = function(json) {
@@ -76,8 +76,8 @@ my.project.post = function(invokeMethod, data, callback) {
             return;
 
         }
-        if (data.callback) {
-            returnValue = data.callback(json.result);
+        if (callback) {
+            returnValue = callback(json.result);
         }
         returnValue = json.result;
     }

@@ -68,7 +68,7 @@ namespace Mysoft.Project.Core
             var typeName = callMethod.Substring(0, lastDotIndex);
             var type = GetType(typeName, assbemlyName);
             var methodName = callMethod.Substring(lastDotIndex + 1);
-            methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            methodInfo = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).FirstOrDefault(n => n.Name.Equals( methodName));
             if (methodInfo == null)
             {
                 throw new InvalidProgramException("未找到" + callMethod + "方法!");
@@ -106,7 +106,11 @@ namespace Mysoft.Project.Core
             Assembly assembly = null;          
             while (assemblyName.LastIndexOf('.') > 0)
             {
-                assembly = Assembly.Load(assemblyName);
+                try
+                {
+                    assembly = Assembly.Load(assemblyName);
+                }
+                catch { }
                 if (assembly != null)
                 {                  
                     return assembly;

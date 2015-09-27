@@ -1,0 +1,314 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" />
+    <title>投放信息</title>
+    <meta name="GENERATOR" content="Microsoft Visual Studio .NET 7.1" />
+    <meta name="CODE_LANGUAGE" content="Visual Basic .NET 7.1" />
+    <meta name="vs_defaultClientScript" content="JavaScript" />
+    <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5" />
+
+    <script type="text/javascript" src="/_controls/settings.aspx"></script>
+
+    <link type="text/css" rel="stylesheet" href="/_common/styles/global_css.axd?v=20150708093855" />
+
+    <script type="text/javascript" src="/_common/scripts/global.js?v=20150708093850"></script>
+
+    <script type="text/javascript" src="/_controls/util/util.js?v=20150708093851"></script>
+
+    <link href="/_grid/map_grid_css.axd?v=20150708093851" rel="stylesheet" type="text/css" />
+    <link href="/_nav/taskbox_css.axd?v=20150708093855" rel="stylesheet" type="text/css" />
+    <link href="/_nav/menu_css.axd?v=20150708093855" rel="stylesheet" type="text/css" />
+    <link href="/_forms/styles/form_css.axd?v=20150708093851" rel="stylesheet" type="text/css" />
+    <link href="/_controls/find/find_css.axd?v=20150708093855" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="/_controls/find/find.js?v=20150708093850"></script>
+
+    <script type="text/javascript" src="/_controls/datetime/date.js?v=20150708093850"></script>
+
+    <script type="text/javascript" src="/_controls/number/number.js?v=20150708093851"></script>
+
+   
+
+    <script type="text/javascript" src="/project/js/jquery.js?v=20150708093851"></script>
+     <script type="text/javascript" src="/project/js/project.js?v=93851"></script>
+      <script type="text/javascript" src="/project/js/ddtree/ddtree.js?v=20150708093851"></script>
+
+    
+
+</head>
+<body ms_positioning="GridLayout" style="padding-right: 10px; padding-left: 10px;
+    padding-bottom: 10px; padding-top: 10px">
+    <table id="appQuery" class="appQuery" onquery="_DoQuery()" style="font-size: 9pt"
+        height="100%" border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tr height="30">
+            <td>
+                <!--Begin of 下拉列表控件-->
+                <table style="table-layout: fixed; vertical-align: text-bottom; width: 100%; height: 30px"
+                    cellspacing="0" cellpadding="0" border="0">
+                    <colgroup>
+                        <col width="60">
+                        <col>
+                        <col width="20">
+                        <col>
+                        <col width="15">
+                    </colgroup>
+                    <tr>
+                        <td>
+                            <b style="color: #666666">项目</b>
+                        </td>
+                        <td>
+                            <div id="ddtree">
+                            </div>
+                        </td>
+                        <td>
+                            <!--占位格-->
+                        </td>
+                    </tr>
+                </table>
+                <!--End of 下拉列表控件-->
+            </td>
+        </tr>
+        <tr height="1">
+            <td>
+                <table id="appFind" groupid="" entity="" primarykey="" isusersetonquery="false" isnotqueryondocumentready="false"
+                    class="find" ctltype="find" onquery="_Query()" sys="" cellspacing="0" cellpadding="0">
+                    <col width="60">
+                    <col>
+                    <col width="35" align="center">
+                    <col width="20">
+                    <col width="60">
+                    <col>
+                    <col width="90">
+                    <tr height="23">
+                        <td colspan="7" class="wizHead">
+                            <table style="table-layout: fixed; font-size: 9pt" height="100%" cellspacing="0"
+                                cellpadding="0" width="100%">
+                                <col>
+                                <col width="60">
+                                <col width="60">
+                                <tr>
+                                    <td style="color: #ffffff">
+                                        <b>快速查询</b>（<span id="__appFind_QueryType">普通</span>）&nbsp;&nbsp;&nbsp;&nbsp;<span
+                                            id="__appFind_spCondition" style="display: none"><select onchange="appFind.loadCondition();"
+                                                style="width: 180px"><option value="">历史查询...</option>
+                                            </select><input type="hidden" value='<?xml version="1.0" encoding="gb2312" ?><Data></Data>'
+                                                name="__appFind_ConditionXML"><input type="hidden" value='4230bc6e-69e6-46a9-a39e-b929a06a84e8'
+                                                    name="__appFind_userGUID"><input type="hidden" value='/Slxt/SCYX/ActivityRegister.aspx'
+                                                        name="__appFind_url">&nbsp;<img src="/images/manage.gif" align="absbottom" onclick="appFind.manageCondition();"
+                                                            style="cursor: hand" title="管理"></span>
+                                    </td>
+                                    <td class="icMenu mnuRight" nowrap>
+                                        <span id="__appFind_switch_standard" class="menu" title="普通查询" onclick='appFind.showQueryPart("__appFind_tbQuery1")'
+                                            tabindex="0">
+                                            <img src="/images/ico-advance.gif" align="absbottom"><span style="color: #ffffff">普通</span></span>
+                                    </td>
+                                    <td class="icMenu mnuRight" nowrap>
+                                        <span id="__appFind_switch_advanced" class="menu" title="高级查询" onclick='appFind.showQueryPart("__appFind_tbQuery2")'
+                                            tabindex="1">
+                                            <img src="/images/ico-advance.gif" align="absbottom"><span style="color: #ffffff">高级</span></span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr id="__appFind_trQuery" height="40">
+                        <td colspan="7" class="wizBox1">
+                            <table id="__appFind_tbQuery1" style="table-layout: fixed; font-size: 9pt" height="100%"
+                                cellspacing="0" cellpadding="0" width="100%">
+                                <col width="60" align="center">
+                                <col width="120">
+                                <col width="55" align="center">
+                                <col>
+                                <col width="90" id="__appFind_Col" align="center">
+                                <tr>
+                                    <td>
+                                        查找按
+                                    </td>
+                                    <td>
+                                        <select id="__appFind_field" style="width: 99.9%" onchange="appFind.setStandardInput()">
+                                            <option letype='' value='ar.MainMediaName' type='lookup' operator='like' action='selectMainMedia(this)'>
+                                                媒体大类</option>
+                                            <option letype='' value='ar.SubMediaName' type='lookup' operator='like' action='selectSubMedia(this)'>
+                                                媒体子类</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        关键字
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                        <button style="width: 70px;" onclick="try{appFind.clickQuery(0)}catch(e){	logException(e);	}">
+                                            查找</button><span></span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <form id="__appFind_frmQuery2">
+                            <table id="__appFind_tbQuery2" style="display: none; table-layout: fixed; font-size: 9pt"
+                                cellspacing="0" cellpadding="2" width="100%">
+                                <col width="20">
+                                <col width="100px">
+                                <col>
+                                <col width="60">
+                                <col width="100px">
+                                <col>
+                                <col width="20">
+                                <tr height="10">
+                                    <td colspan="7">
+                                    </td>
+                                </tr>
+                                <tr height="25">
+                                    <td>
+                                    </td>
+                                    <td>
+                                        媒体大类
+                                    </td>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed">
+                                            <colgroup>
+                                                <col>
+                                                <col width="26">
+                                            <tr>
+                                                <td>
+                                                    <input maxlength="100" letype='' id='__appFind_ar.MainMediaName' field='ar.MainMediaName'
+                                                        operator='like' onkeypress='if (event.keyCode == 13)event.returnValue = false;'
+                                                        datatype="lookup">
+                                                </td>
+                                                <td style="padding-left: 4px">
+                                                    <img class="lookup" src="/_imgs/btn_off_lookup.gif" onclick='selectMainMedia(this)'>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                        媒体子类
+                                    </td>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed">
+                                            <colgroup>
+                                                <col>
+                                                <col width="26">
+                                            <tr>
+                                                <td>
+                                                    <input maxlength="100" letype='' id='__appFind_ar.SubMediaName' field='ar.SubMediaName'
+                                                        operator='like' onkeypress='if (event.keyCode == 13)event.returnValue = false;'
+                                                        datatype="lookup">
+                                                </td>
+                                                <td style="padding-left: 4px">
+                                                    <img class="lookup" src="/_imgs/btn_off_lookup.gif" onclick='selectSubMedia(this)'>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                       
+                                <tr height="25">
+                                    <td>
+                                    </td>
+                                    <td>
+                                        在售业态
+                                    </td>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed">
+                                            <colgroup>
+                                                <col>
+                                                <col width="26">
+                                            <tr>
+                                                <td>
+                                                    <input maxlength="100" letype='' id='__appFind_SaleState' field='SaleState' operator='like'
+                                                        onkeypress='if (event.keyCode == 13)event.returnValue = false;' datatype="lookup">
+                                                </td>
+                                                <td style="padding-left: 4px">
+                                                    <img class="lookup" src="/_imgs/btn_off_lookup.gif" onclick='chgSaleState(this)'>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                        所处阶段
+                                    </td>
+                                    <td>
+                                        <select letype='' id="__appFind_Scjd" field="Scjd" datatype="select" style="width: 99.9%">
+                                            <option value="" selected></option>
+                                            <option operator="eq" value="集客期">集客期</option>
+                                            <option operator="eq" value="强销期">强销期</option>
+                                            <option operator="eq" value="持续销售期">持续销售期</option>
+                                            <option operator="eq" value="尾盘期">尾盘期</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr height="25">
+                                    <td>
+                                    </td>
+                                    <td>
+                                        客户定位
+                                    </td>
+                                    <td>
+                                        <select letype='' id="__appFind_Khdw" field="Khdw" datatype="select" style="width: 99.9%">
+                                            <option value="" selected></option>
+                                            <option operator="eq" value="普通">普通</option>
+                                            <option operator="eq" value="中端">中端</option>
+                                            <option operator="eq" value="高级">高级</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr height="30">
+                                    <td colspan="6" align="right">
+                                        <button style="width: 70px;" onclick="appFind.saveCondition()">
+                                            保存</button>&nbsp;&nbsp;&nbsp;
+                                        <button style="width: 70px;" onclick="appFind.clickQuery(0)">
+                                            查找</button>&nbsp;&nbsp;&nbsp;
+                                        <button style="width: 70px;" onclick="appFind.loadCondition()">
+                                            重置</button>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </table>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr height="10">
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td><div id="demohtml"></div>
+            </td>
+        </tr>
+        <tr height="20">
+            <td style="color: blue">
+                提示：<span id="spanTipAnaDate">没有统计数据！</span>
+            </td>
+        </tr>
+    </table>
+    
+</body>
+</html>
+<script language="javascript" type="text/javascript">
+    $('#ddtree').DDTree({ application: '0201', type: 'project' })
+    </script>
+<script language="javascript">
+  
+</script>
+

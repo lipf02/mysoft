@@ -69,6 +69,7 @@
   <ItemGroup>
     <Content Include="js\DDTree\DDTree.css" />
     <Content Include="js\DDTree\DDTree.js" />
+    <Content Include="js\DDTree\demo.htm" />
     <Content Include="js\DDTree\install.htm" />
     <Content Include="js\jquery-1.11.3.min.js" />
     <Content Include="js\project.js" />
@@ -76,6 +77,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="js\DDTree\ddttreeupdate.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MySoft.Project\MySoft.Project.csproj">
+      <Project>{CA53A269-00C3-420B-8B9D-BDAB07B226B3}</Project>
+      <Name>MySoft.Project</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

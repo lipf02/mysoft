@@ -9,7 +9,7 @@ using Mysoft.Project.Core;
 using System.IO;
 using Mysoft.Project.Core.DataAnnotations;
 
-namespace Mysoft.Project.Expand
+namespace Mysoft.Project.Ajax
 {
 
     public static class AjaxServiceProxy
@@ -37,7 +37,7 @@ namespace Mysoft.Project.Expand
 
             HttpRequest request = context.Request;
             var assbemlyName = request.QueryString["assbemly"];
-            var invokeMethod = request.QueryString["invokemethod"];
+            var invokeMethod = request.QueryString["invokeMethod"];
             var typeName = request.QueryString["type"];
             Type type;
           
