@@ -77,19 +77,8 @@ namespace Mysoft.Project.Core
             get
             {
                 if (!string.IsNullOrEmpty(_connectionString))
-                    return _connectionString;
-                var assembly = Assembly.Load("Mysoft.Map.Core");
-                if (assembly == null)
-                    throw new FileNotFoundException("Mysoft.Map.Core.dll文件不存在!");
-                Type type = assembly.GetType("Mysoft.Map.Data.MyDB");
-                if (type == null)
-                {
-                    throw new InvalidProgramException("Mysoft.Map.Core.dll中未找到MyDB类型!");
-                }
-
-                _connectionString = (string)type.InvokeMember("GetSqlConnectionString", BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, null, null);
-
-
+                    return _connectionString;  
+                _connectionString = (string)ReflectionHelper.InvokeMethod("Mysoft.Map.Data.MyDB.GetSqlConnectionString", "Mysoft.Map.Core");
                 return _connectionString;
             }
             private set { _connectionString = value; }
@@ -171,7 +160,7 @@ namespace Mysoft.Project.Core
         public static Transaction BeginTransaction() {
             return GetDatabase().BeginTransaction();
         }
-        public static Database GetDatabase()
+        static Database GetDatabase()
         {
             if (_db == null)
             {

@@ -1,112 +1,93 @@
-﻿/* ===================================================
-* DDTree.js v1.0.0
-* https://github.com/alittletired/mysoft
-* ===================================================
-* Copyright 2014 zhulin,chenz03
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-* ========================================================== */
+﻿window.my = window.my || {};
+my.project = my.project || {};
+my.project.showPopup = function(popup, x, y, popupWidth, popupHeight, src) {
 
-(function($) {
-
-    //动态加载样式
-    var addCss = window.addCss = function(styleText) {
-        style = document.createElement('style');
-        style.setAttribute("type", "text/css");
-        if (style.styleSheet)
-            style.styleSheet.cssText = styleText;
-        else
-            style.appendChild(document.createTextNode(styleText));
-        document.getElementsByTagName('head')[0].appendChild(style);
+    //获取浏览器窗口可视范围的高度和宽度
+    var iWidth, iHeight;
+    try {
+        iWidth = top.document.documentElement.offsetWidth;
+        iHeight = top.document.documentElement.offsetHeight;
+    }
+    catch (e) {
+        iWidth = window.screen.availWidth - 10;
+        iHeight = window.screen.availHeight - 60;
     }
 
-    if (!window.showPopup) {
-        // 显示 Popup 窗口
-        window.showPopup = function(popup, x, y, popupWidth, popupHeight, src) {
+    //获取当前点击元素所在窗口在浏览器中的位置
+    var frameLeft = 0;
+    var frameTop = 0;
+    var oWin = window;
+    var pos;
+    try {
+        while (oWin.frameElement != null) {
+            pos = oWin.frameElement.getBoundingClientRect();
+            frameLeft += pos.left;
+            frameTop += pos.top;
 
-            //获取浏览器窗口可视范围的高度和宽度
-            var iWidth, iHeight;
-            try {
-                iWidth = top.document.documentElement.offsetWidth;
-                iHeight = top.document.documentElement.offsetHeight;
-            }
-            catch (e) {
-                iWidth = window.screen.availWidth - 10;
-                iHeight = window.screen.availHeight - 60;
-            }
-
-            //获取当前点击元素所在窗口在浏览器中的位置
-            var frameLeft = 0;
-            var frameTop = 0;
-            var oWin = window;
-            var pos;
-            try {
-                while (oWin.frameElement != null) {
-                    pos = oWin.frameElement.getBoundingClientRect();
-                    frameLeft += pos.left;
-                    frameTop += pos.top;
-
-                    oWin = oWin.parent;
-                }
-            }
-            catch (e) { }
-            //获取当前点击元素的位置
-            pos = src.getBoundingClientRect();
-            var xPos = pos.left;
-            var yPos = pos.top;
-
-            //对当前点击元素的位置进行判断,是否需要调整popup的位置
-            if (frameLeft + xPos + x + popupWidth > iWidth) {
-                x = iWidth - frameLeft - xPos - popupWidth;
-            }
-            if (frameLeft + xPos + x < 0) {
-                x = 0 - frameLeft - xPos;
-            }
-
-            if (frameTop + yPos + y + popupHeight > iHeight) {
-                y = iHeight - frameTop - yPos - popupHeight;
-            }
-            if (frameTop + yPos + y < 0) {
-                y = 0 - frameTop - yPos;
-            }
-
-            // 显示 Popup 窗口
-            popup.document.iLeft = frameLeft + xPos + x;
-            popup.document.iTop = frameTop + yPos + y;
-            //二级菜单定位
-            if (src.ownerDocument.iLeft) {
-                xPos = src.ownerDocument.iLeft;
-                yPos = yPos + src.ownerDocument.iTop;
-                if (frameLeft + xPos + x + popupWidth > iWidth) {
-                    x = 0 - popupWidth;
-                }
-                if (frameTop + yPos + y + popupHeight > iHeight) {
-                    y = yPos - popupHeight;
-                }
-                if (frameTop + yPos + y < 0) {
-                    y = 0;
-                }
-            }
-
-            popup.show(x, y, popupWidth, popupHeight, src);
-
+            oWin = oWin.parent;
         }
     }
+    catch (e) { }
+    //获取当前点击元素的位置
+    pos = src.getBoundingClientRect();
+    var xPos = pos.left;
+    var yPos = pos.top;
+
+    //对当前点击元素的位置进行判断,是否需要调整popup的位置
+    if (frameLeft + xPos + x + popupWidth > iWidth) {
+        x = iWidth - frameLeft - xPos - popupWidth;
+    }
+    if (frameLeft + xPos + x < 0) {
+        x = 0 - frameLeft - xPos;
+    }
+
+    if (frameTop + yPos + y + popupHeight > iHeight) {
+        y = iHeight - frameTop - yPos - popupHeight;
+    }
+    if (frameTop + yPos + y < 0) {
+        y = 0 - frameTop - yPos;
+    }
+
+    // 显示 Popup 窗口
+    popup.document.iLeft = frameLeft + xPos + x;
+    popup.document.iTop = frameTop + yPos + y;
+    //二级菜单定位
+    if (src.ownerDocument.iLeft) {
+        xPos = src.ownerDocument.iLeft;
+        yPos = yPos + src.ownerDocument.iTop;
+        if (frameLeft + xPos + x + popupWidth > iWidth) {
+            x = 0 - popupWidth;
+        }
+        if (frameTop + yPos + y + popupHeight > iHeight) {
+            y = yPos - popupHeight;
+        }
+        if (frameTop + yPos + y < 0) {
+            y = 0;
+        }
+    }
+
+    popup.show(x, y, popupWidth, popupHeight, src);
+
+}
+my.project.addCss = function(styleText) {
+    style = document.createElement('style');
+    style.setAttribute("type", "text/css");
+    if (style.styleSheet)
+        style.styleSheet.cssText = styleText;
+    else
+        style.appendChild(document.createTextNode(styleText));
+    document.getElementsByTagName('head')[0].appendChild(style);
+}
+(function($) {
+
+
+
+
     //下拉树
     function DDTree(element, options) {
         var _this = this;
         this._oPopUp = window.createPopup();
-        addCss(".ddtreeWarp{  padding:0px 0px ;display:inline-block;text-align:left; }  table.ddtree{TABLE-LAYOUT: fixed; WIDTH: 100%; BACKGROUND-COLOR: white; }"
+        my.project.addCss(".ddtreeWarp{  padding:0px 0px ;display:inline-block;text-align:left; }  table.ddtree{TABLE-LAYOUT: fixed; WIDTH: 100%; BACKGROUND-COLOR: white; }"
     + " .ddtree  span.spanOut {  CURSOR: default; FONT-SIZE: 9pt; BORDER-TOP: #7b9ebd 1px solid; HEIGHT: 19px; FONT-FAMILY: 宋体, Tahoma, Verdana, Arial; BORDER-RIGHT: medium none; BORDER-BOTTOM: #7b9ebd 1px solid; PADDING-LEFT: 5px; BORDER-LEFT: #7b9ebd 1px solid; WIDTH: 100% }"
     + " .ddtree span.text{ CURSOR: hand; COLOR: blue; TEXT-DECORATION: underline } "
       + " .ddtree span.readonly{ CURSOR: hand; } "
@@ -207,7 +188,7 @@
                 }
                 var text = item[that.options.textField];
                 var code = item[that.options.codeField];
-                arr.push('<li   indent="' + indent + '" code="' + code + '" title="' + text + '"  style="CURSOR: hand; height:20px;line-height:20px;">');
+                arr.push('<li  code="' + code + '" title="' + text + '"  style="CURSOR: hand; height:20px;line-height:20px;">');
 
                 arr.push('<div href="javascript:void(0)" onclick="window._dropdown._select(this)"   style="vertical-align:middle; CURSOR: hand; height:20px; ' + highline + '"><span>' + indentHtml
                  + '</span><span  class="icon"  ');
@@ -280,6 +261,10 @@
     }
     DDTree.prototype.showDropDown = function(e) {
         var arr = [];
+        if (this.options.showSearch) {
+            var input = '<input type="text" id="txtsearch" />';
+            arr.push(input);
+        }
         arr.push('<ul  style="list-style: none;padding:0 0 ;margin:0 0;font-size: 9pt; font-family: 宋体, Tahoma, Verdana, Arial; width:100%;"  >');
         this.buildDropDownItem(this._rootItems, arr, 0, true)
         arr.push('</ul>');
@@ -308,6 +293,7 @@
             , selectAll: false //只能选择末级节点
             , showFullText: true//显示完整的路径名
             , onchange: false  //选择元素后的回调函数
+            , showSearch: true
     };
 
     //插件

@@ -12,7 +12,7 @@ using System.Web.Hosting;
 using System.Reflection;
 using HtmlAgilityPack;
 using Mysoft.Project.Core;
-namespace Mysoft.Expand
+namespace MySoft.Project.Control
 {
     public interface IDDTreeItem
     {
@@ -77,11 +77,11 @@ namespace Mysoft.Expand
             DataTable dtBU = DBHelper.GetDataTable(strSQL);
 
             //根据用户岗位获取有权限的公司
-            if (Mysoft.Map.Application.Security.User.IsAdmin(userguid))
+            if ((bool)ReflectionHelper.InvokeMethod("Mysoft.Map.Application.Security.User.IsAdmin", "Mysoft.Map.Core", userguid))
             {
                 //系统管理员有所属公司所有权限
                 strSQL = @"SELECT bu.OrderHierarchyCode FROM myBusinessUnit AS bu RIGHT OUTER JOIN myUser AS u ON bu.BUGUID = u.BUGUID WHERE u.UserGUID = '" + userguid + "'";
-                var strCode = MyDB.GetDataItemString(strSQL);
+                var strCode = DBHelper.ExecuteScalarString (strSQL);
 
                 strSQL = "SELECT myBusinessUnit.BUGUID AS GUID ,BUName AS Name,myBusinessUnit.OrderHierarchyCode AS Code,ISNULL(myBusinessUnit.Level, 0) AS Level,myBusinessUnit.IsEndCompany FROM myBusinessUnit WHERE BUType = 0 AND OrderHierarchyCode + '.' LIKE '" + strCode + ".%'  order by  OrderHierarchyCode";
 
@@ -100,7 +100,7 @@ WHERE u.UserGUID ='" + userguid + "'";
                 strSQL = "SELECT b1.BUGUID AS GUID ,BUName AS Name,b1.OrderHierarchyCode AS Code,ISNULL(b1.Level, 0) AS Level,b1.IsEndCompany FROM myBusinessUnit AS b1 INNER JOIN (" + strSQL + ") AS b2 ON b1.OrderHierarchyCode + '.' LIKE b2.OrderHierarchyCode + '.%' WHERE b1.BUType = 0  order by b1.OrderHierarchyCode";
 
             }
-            var dtRights = MyDB.GetDataTable(strSQL);
+            var dtRights = DBHelper.GetDataTable(strSQL);
             //创建临时表
             var list = new List<IDDTreeItem>();
             for (int i = 0; i < dtRights.Rows.Count; i++)
@@ -116,6 +116,15 @@ WHERE u.UserGUID ='" + userguid + "'";
             }
             return list;
 
+        }
+        /// <summary>
+        /// 获取当前用户业务系统授权的项目
+        /// </summary>
+        /// <param name="application"></param>
+        /// <returns></returns>
+        public List<IDDTreeItem> GetProjectTree(string application,string treeType)
+        {
+            return GetCompany(null);
         }
         /// <summary>
         /// 设置当前用户访问的公司
@@ -141,52 +150,16 @@ WHERE u.UserGUID ='" + userguid + "'";
             context.Response.Cookies["mycrm_isendcompany"].Expires = DateTime.Now.AddDays(365);
             //在临时表中保存当前公司
             //254类型为 Mysoft.Map.Utility.General
-            Mysoft.Map.Utility.GeneralBase.InsertKeywordValue2myTemp(context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", buguid);
+            if (!ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Utility.GeneralBase.InsertKeywordValue2myTemp", "Mysoft.Map.Core", context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", buguid))
+                ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Utility.General.InsertKeywordValue2myTemp", "Mysoft.Map.Core", context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", buguid);
 
-            //'Add by 亚林 2009-12-16 切换公司时清除桌面部件的缓存
-            Mysoft.Map.Caching.MyCache.ClearDeskTempFile(context.Session["UserGUID"].ToString());
+            // 切换公司时清除桌面部件的缓存
+            ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Caching.MyCache.ClearDeskTempFile", "Mysoft.Map.Core", context.Session["UserGUID"].ToString());
+
             return true;
         }
 
-        public List<DDTreeUpdateInfo> Update()
-        {
-
-
-            var path = HostingEnvironment.MapPath("/Expand/js/DDTree/ddttreeupdate.json");
-            List<DDTreeUpdateInfo> list;
-            using (StreamReader reader = new StreamReader(path, Encoding.UTF8))
-            {
-                var jsonstr = reader.ReadToEnd();
-                list = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DDTreeUpdateInfo>>(jsonstr);
-
-
-            }
-            var tempFile = HostingEnvironment.MapPath("/TempFiles/ddtree");
-            if (Directory.Exists(tempFile))
-                Directory.Delete(HostingEnvironment.MapPath("/TempFiles/ddtree"), true);
-            foreach (var item in list)
-            {
-                if (item.HasUpdated) continue;
-                var typeName = item.UpdateClass ?? "Mysoft.Expand.DefaultTreeUpdate";
-                var type = Assembly.GetExecutingAssembly().GetType(typeName, false, true);
-                if (type == null)
-                {
-                    item.Error = "找不到处理类型：" + item.UpdateClass;
-                    continue;
-                }
-                try
-                {
-                    var update = Activator.CreateInstance(type, new object[] { }) as ITreeUpdate;
-                    update.Update(item);
-                }
-                catch (Exception ex)
-                {
-                    item.Error = ex.Message;
-                }
-            }
-            return list;
-
-        }
+    
          
 
     }

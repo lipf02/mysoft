@@ -1,8 +1,8 @@
-using Mysoft.Map.Application;
+
 using System.Web;
 using System;
 using System.Data;
-using Mysoft.Map.Data;
+
 using System.Data.SqlClient;
 using System.Xml;
 using System.Text;
@@ -11,7 +11,7 @@ using System.IO;
 using System.Web.Hosting;
 using System.Reflection;
 using HtmlAgilityPack;
-namespace Mysoft.Expand
+namespace MySoft.Project.Control
 {
     public class Slxt_SCYX_GsDl_Analysis_Update : DefaultTreeUpdate
     {

@@ -36,43 +36,39 @@ namespace Mysoft.Project.Expand
         {
 
             HttpRequest request = context.Request;
+            var assbemlyName = request.QueryString["assbemly"];
+            var invokeMethod = request.QueryString["invokemethod"];
             var typeName = request.QueryString["type"];
-            var callMethod = request.QueryString["callmethod"];
-            string methodName = string.Empty;
-            if (request.HttpMethod.Equals("POST", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(callMethod))
-            {
-                var lastDotIndex = callMethod.LastIndexOf(".");
-                typeName = callMethod.Substring(0, lastDotIndex );
-                methodName = callMethod.Substring(lastDotIndex + 1);
-            }
-            if (string.IsNullOrEmpty(typeName))
-            {
-                return "alert('" + request.RawUrl + "需要传入type类型参数')";
-            }
-            Assembly assembly =ReflectionHelper. FindAssembly(typeName);
-            if (assembly == null)
-            {
-
-                return "alert('" + string.Format("无法找到类型{0}的程序集，请指定assembly参数！", typeName) + "')";
-            }
-            Type type = assembly.GetType(typeName);
-            if (type == null)
-            {
-                return "alert('" + string.Format("无法找到{0}类型", typeName) + "')";
-            }
+            Type type;
+          
             //请求前端脚本
-            if (!string.IsNullOrEmpty(request.QueryString["type"]) && request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(typeName) && request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
-                context.Response.AddHeader("Content-Type", "application/x-javascript");
-                return GetProxyScript(type, context.Request.Path);
+                try
+                {
+                   
+                    type = ReflectionHelper.GetType(typeName, assbemlyName);
+                    context.Response.AddHeader("Content-Type", "application/x-javascript");
+                    return GetProxyScript(type, context.Request.Path);
+                }
+                catch(Exception ex)
+                {
+                    return "alert('无法加载类型，需要传入正确的type，和 assbemly参数！\n出错信息："+ex.Message+"')";
+                }
             }
+
             object mess = null;
-            MethodInfo methodInfo = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            if (methodInfo == null)
+            MethodInfo methodInfo=null;
+            try
             {
-                mess = new { __error__ = "无法调用方法'" + callMethod + "'，请检查后台是否存在此方法" };
+                methodInfo = ReflectionHelper.GetMethod(invokeMethod, assbemlyName);
+            }
+            catch (Exception ex)
+            {
+                mess = new { __error__ = "无法调用方法'" + invokeMethod + "'，请检查后台是否存在此方法！\n出错信息："+ex.Message };
                 return JsonConvert.SerializeObject(mess);
             }
+           
             try
             {
 
@@ -89,6 +85,7 @@ namespace Mysoft.Project.Expand
                     else
                         paramters[i] = JsonConvert.DeserializeObject(parameterValue, parameterType);
                 }
+                type = methodInfo.DeclaringType;
                 object instance = null;
                 if (!methodInfo.IsStatic)
                     instance = Activator.CreateInstance(type, new object[] { });
@@ -102,9 +99,7 @@ namespace Mysoft.Project.Expand
                 else if (methodInfo.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase))
                 {
                     isOpenTrans = false;
-                }
-
-               
+                }               
 
                 if (isOpenTrans)
                 {

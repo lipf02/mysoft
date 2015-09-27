@@ -1,8 +1,7 @@
-using Mysoft.Map.Application;
+
 using System.Web;
 using System;
 using System.Data;
-using Mysoft.Map.Data;
 using System.Data.SqlClient;
 using System.Xml;
 using System.Text;
@@ -11,7 +10,7 @@ using System.IO;
 using System.Web.Hosting;
 using System.Reflection;
 using HtmlAgilityPack;
-namespace Mysoft.Expand
+namespace MySoft.Project.Control
 {
   
    
@@ -31,10 +30,51 @@ namespace Mysoft.Expand
     public interface ITreeUpdate {
         void Update(DDTreeUpdateInfo updateInfo);
     }
-   
+    public class DDTreeUpdateService {
+        public List<DDTreeUpdateInfo> Update()
+        {
+
+
+            var path = HostingEnvironment.MapPath("/Expand/js/DDTree/ddttreeupdate.json");
+            List<DDTreeUpdateInfo> list;
+            using (StreamReader reader = new StreamReader(path, Encoding.UTF8))
+            {
+                var jsonstr = reader.ReadToEnd();
+                list = Newtonsoft.Json.JsonConvert.DeserializeObject<List<DDTreeUpdateInfo>>(jsonstr);
+
+
+            }
+            var tempFile = HostingEnvironment.MapPath("/TempFiles/ddtree");
+            if (Directory.Exists(tempFile))
+                Directory.Delete(HostingEnvironment.MapPath("/TempFiles/ddtree"), true);
+            foreach (var item in list)
+            {
+                if (item.HasUpdated) continue;
+                var typeName = item.UpdateClass ?? "Mysoft.Expand.DefaultTreeUpdate";
+                var type = Assembly.GetExecutingAssembly().GetType(typeName, false, true);
+                if (type == null)
+                {
+                    item.Error = "找不到处理类型：" + item.UpdateClass;
+                    continue;
+                }
+                try
+                {
+                    var update = Activator.CreateInstance(type, new object[] { }) as ITreeUpdate;
+                    update.Update(item);
+                }
+                catch (Exception ex)
+                {
+                    item.Error = ex.Message;
+                }
+            }
+            return list;
+
+        }
+    }
    // Slxt/XSZDH/Hfzf.aspx
     public class DefaultTreeUpdate:ITreeUpdate
     {
+
        protected  HtmlDocument _doc;
        protected  DDTreeUpdateInfo _updateInfo;
     

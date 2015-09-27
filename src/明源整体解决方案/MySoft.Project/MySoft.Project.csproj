@@ -8,8 +8,8 @@
     <ProjectGuid>{CA53A269-00C3-420B-8B9D-BDAB07B226B3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySoft.Project.Core</RootNamespace>
-    <AssemblyName>MySoft.Project.Core</AssemblyName>
+    <RootNamespace>MySoft.Project</RootNamespace>
+    <AssemblyName>MySoft.Project</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
@@ -25,7 +25,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Map\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -33,12 +33,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Map\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL" />
+    <Reference Include="LumenWorks.Framework.IO, Version=3.8.0.0, Culture=neutral, PublicKeyToken=5ad3ea2f85776344, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="NPOI, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL" />
     <Reference Include="System" />
@@ -63,6 +65,9 @@
     <Compile Include="Ajax\ProxyClass.cs" />
     <Compile Include="Ajax\TypeHelper.cs" />
     <Compile Include="Ajax\ReflectionHelper.cs" />
+    <Compile Include="Control\DDTree\DDTreeService.cs" />
+    <Compile Include="Control\DDTree\DDTreeUpdate.cs" />
+    <Compile Include="Control\DDTree\SlxtUpdate.cs" />
     <Compile Include="DB\Database.cs" />
     <Compile Include="DB\DBAttribute.cs" />
     <Compile Include="DB\DBHelper.cs" />
