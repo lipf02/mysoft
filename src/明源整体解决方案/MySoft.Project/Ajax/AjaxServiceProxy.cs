@@ -8,7 +8,8 @@ using System.Collections;
 using Mysoft.Project.Core;
 using System.IO;
 using Mysoft.Project.Core.DataAnnotations;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 namespace Mysoft.Project.Ajax
 {
 
@@ -28,7 +29,7 @@ namespace Mysoft.Project.Ajax
                 context.Response.Write(mess);
             }
             else
-                context.Response.Write(JsonConvert.SerializeObject(mess));
+                context.Response.Write(JsonHelper.SerializeObject(mess));
 
         }
 
@@ -74,16 +75,21 @@ namespace Mysoft.Project.Ajax
 
                 ParameterInfo[] paramterInfos = methodInfo.GetParameters();
                 object[] paramters = new object[paramterInfos.Length];
+                var json = JObject.Parse(request.Form["postdata"]);
                 for (int i = 0; i < paramterInfos.Length; i++)
                 {
                     Type parameterType = paramterInfos[i].ParameterType;
                     string parameterName = paramterInfos[i].Name;
-                    string parameterValue = null;
-                    parameterValue = request[parameterName];
-                    if (parameterType.IsPrimitive || typeof(string) == parameterType)
-                        paramters[i] = Convert.ChangeType(parameterValue, parameterType);
-                    else
-                        paramters[i] = JsonConvert.DeserializeObject(parameterValue, parameterType);
+                    object value = null;
+                    var jvalue = json[parameterName];
+                    if (jvalue == null)
+                    {
+                        value = json.ToObject(parameterType);
+                    }
+                    else {
+                        value = jvalue.ToObject(parameterType);
+                    }
+                    paramters[i] = value;
                 }
                 type = methodInfo.DeclaringType;
                 object instance = null;

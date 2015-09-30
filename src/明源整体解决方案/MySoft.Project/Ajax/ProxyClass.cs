@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Mysoft.Project.Core
 {
-    public static class JsonConvert
+    public static class JsonHelper
     {
         static BoolConverter boolConverter = new BoolConverter();
         static IntConverter intConverter = new IntConverter();

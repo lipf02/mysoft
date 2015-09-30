@@ -1,19 +1,21 @@
 //兼容小平台传参调用
 window.my = window.my || {};
 my.project = my.project || {};
-my.project.invokeMethod = function(option, callback) {
-    option = option || {}
-    data = option.data || option;
-    var serviceInfo = option.serviceInfo;
-    return my.project.post(serviceInfo, data, callback);
 
-}
-my.project.post = function(invokeMethod, data, callback) {
-    if ($.isFunction(data)) {
-        callback = data;
-        data = null;
+my.project.invoke = function(method, option, callback) {
+
+    var invokeMethod = method;
+    var data = option;
+    if (typeof invokeMethod !== "string") {
+        invokeMethod = method.serviceInfo;
+        data = method.data || method
+        callback = option;
+    } else if ($.isFunction(option)) {
+        callback = option;
+        data = {}   
     }
-    data = data || {};
+
+
     serverUrl = data.serverUrl || '/project/ajax.aspx';
     var async = callback ? true : false;
     var returnValue;
@@ -37,7 +39,7 @@ my.project.post = function(invokeMethod, data, callback) {
         }
         returnValue = json.result;
     }
-    $.ajax({ url: serverUrl + '?invokeMethod=' + invokeMethod, contentType: 'application/x-www-form-urlencoded; charset=UTF-8', data: data, async: async, type: 'POST', cache: false, dataType: 'json' }).done(ajaxdone);
+    $.ajax({ url: serverUrl + '?invokeMethod=' + invokeMethod, contentType: 'application/x-www-form-urlencoded; charset=UTF-8', data: { postdata: JSON.stringify(data) }, async: async, type: 'POST', cache: false, dataType: 'json' }).done(ajaxdone);
     return returnValue;
 
 };
@@ -45,7 +47,7 @@ my.project.post = function(invokeMethod, data, callback) {
 
 my.project.showPopup = function(src, html, popupWidth, popupHeight, x, y) {
     var x = x || src.clientLeft;
-    var y = y || src.clientTop + $(src).height() 
+    var y = y || src.clientTop + $(src).height()
     src._oPopUp = src._oPopUp || window.createPopup();
     var popup = src._oPopUp;
     popup.document.body.innerHTML = html
@@ -114,6 +116,8 @@ my.project.showPopup = function(src, html, popupWidth, popupHeight, x, y) {
     }
 
     popup.show(x, y, popupWidth, popupHeight, src);
+    setTimeout(function() { popup.document.focus() }, 0);
+
     return popup;
 
 }

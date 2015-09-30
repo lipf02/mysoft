@@ -13,6 +13,8 @@
 
 ajax使用的ajax.aspx作为服务中转地址
 
+**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，或类名以Service结尾**
+
 **调用服务方法出现未知异常时，本地访问将弹出异常的完整信息，正式环境将弹出最常见的“系统错误，请联系系统管理员”提示，在前端都将暴露__error__方便开发人员进行排查**
 
 **无须在方法中定义事务,服务中转时，除方法名以Get开始的，默认将开启事务，可以使用TransactionAttribute特性自行控制事务**
@@ -67,7 +69,7 @@ function doSendProcess() {
   var option={serviceInfo:"Mysoft.Cbgl.Services.MonthPlanService.GetMpProcessGUID",
               data:{planMonth:planMonth,BUGUID: BUGUID}
   }
-	my.project.invokeMethod(option,callbackifneed)
+	my.project.invoke(option,callbackifneed)
 
 	}
 

@@ -28,11 +28,11 @@
 
     <script type="text/javascript" src="/_controls/number/number.js?v=20150708093851"></script>
 
+   <style>
    
+   </style>
 
-    <script type="text/javascript" src="/project/js/jquery.js?v=20150708093851"></script>
-     <script type="text/javascript" src="/project/js/project.js?v=93851"></script>
-      <script type="text/javascript" src="/project/js/ddtree/ddtree.js?v=20150708093851"></script>
+   
 
     
 
@@ -305,10 +305,24 @@
     
 </body>
 </html>
+ <script type="text/javascript" src="/project/js/jquery.js?v=20150708093851"></script>
+     <script type="text/javascript" src="/project/js/project.js?v=93851"></script>
+      <script type="text/javascript" src="/project/js/ddtree/ddtree.js?v=20150708093851"></script>
 <script language="javascript" type="text/javascript">
-    $('#ddtree').DDTree({ application: '0201', type: 'project' })
-    </script>
-<script language="javascript">
+
+    var TreeType = { None: -1, Group: 0, Dept: 1, Team: 2, ProjectTeam: 3, Company: 4, EndCompany: 5, Project: 6, EndProject: 7 }
+    var option = {            
+             onchange: false  //选择元素后的回调函数
+            , showSearch: true     //是否显示搜索框     
+             , treeType: TreeType.EndProject //数据加载类型
+             , selectType: TreeType.Group //可以选择的类型
+             , showType: TreeType.Project //默认展开类型，-1不展开
+             , showGroup: true  //是否显示集团
+             , showCompany: true //是否显示区域公司
+         }
+         $(function() {
+             $('#ddtree').DDTree(option)
+         });
   
-</script>
+    </script>
 

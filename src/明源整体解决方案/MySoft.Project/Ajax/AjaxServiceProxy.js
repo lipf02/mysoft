@@ -4,10 +4,11 @@
     service._serverUrl = serverUrl;
     service.parseParam = function(data, paramName, paramVal) {
         if (!window.$ && window.location.host.indexOf('localhost') > 0) { alert('人生苦短，我用jquery '); };
-        if ($.isArray(paramVal)) {
-            data[paramName] = JSON.stringify(paramVal);
-        }
-        else if ($.isFunction(paramVal)) { }
+//        if ($.isArray(paramVal)) {
+//            data[paramName] = JSON.stringify(paramVal);
+//        }
+//        else 
+        if ($.isFunction(paramVal)) { }
         else if (typeof paramVal === 'object') {
             $.extend(data, paramVal);
         }
@@ -29,7 +30,7 @@
             }
             var invokeMethod = this._typeName + '.' + methodName;
             data.serverUrl = service._serverUrl;
-            var sRtn = my.project.post(invokeMethod, data, callback);
+            var sRtn = my.project.invoke(invokeMethod, data, callback);
             return sRtn;
         }
     }
@@ -45,19 +46,19 @@
 //兼容小平台传参调用
 window.my = window.my || {};
 my.project = my.project || {};
-my.project.invokeMethod = function(option, callback) {
-    option = option || {}
-    data = option.data || option;
-    var serviceInfo = option.serviceInfo;
-    return my.project.post(serviceInfo, data, callback);
 
-}
-my.project.post = function(invokeMethod, data, callback) {
-    if ($.isFunction(data)) {
-        callback = data;
-        data = null;
+my.project.invoke = function(method, option, callback) {
+
+    var invokeMethod = method;
+    var data = {};
+    if (typeof invokeMethod !== "string") {
+        invokeMethod = option.serviceInfo;
+        data = option.data || option
     }
-    data = data || {};
+    if ($.isFunction(option)) {
+        callback = option;
+    }
+
     serverUrl = data.serverUrl || '/project/ajax.aspx';
     var async = callback ? true : false;
     var returnValue;
@@ -81,7 +82,7 @@ my.project.post = function(invokeMethod, data, callback) {
         }
         returnValue = json.result;
     }
-    $.ajax({ url: serverUrl + '?invokeMethod=' + invokeMethod, contentType: 'application/x-www-form-urlencoded; charset=UTF-8', data: data, async: async, type: 'POST', cache: false, dataType: 'json' }).done(ajaxdone);
+    $.ajax({ url: serverUrl + '?invokeMethod=' + invokeMethod, contentType: 'application/x-www-form-urlencoded; charset=UTF-8', data: { postdata: JSON.stringify(data) }, async: async, type: 'POST', cache: false, dataType: 'json' }).done(ajaxdone);
     return returnValue;
 
 };
