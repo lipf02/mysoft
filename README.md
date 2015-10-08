@@ -5,12 +5,9 @@
 
 ## API
 
-+ [Entity](/docs/api/entity.md)
++ [Core](/docs/core/readme.md)
 
-+ [DBHelper](/docs/api/dbhelper.md)
 
-+ [Ajax](/docs/api/ajax.md)
-12345
 
 ## Quick start
 + 定义后台服务类和方法，（不限语言，没有小平台项目名称约束）
