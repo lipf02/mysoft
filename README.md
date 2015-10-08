@@ -5,7 +5,7 @@
 
 ## API
 
-+ [Core](/docs/core/readme.md)
++ [Core](/docs/core)
 
 
 
