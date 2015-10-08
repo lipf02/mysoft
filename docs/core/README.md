@@ -6,9 +6,8 @@
 ## API
 
 
-
-+ [Entity](entity.md)
++ [Ajax](ajax.md)
 
 + [DBHelper](dbhelper.md)
 
-+ [Ajax](ajax.md)
++ [Entity](entity.md)
