@@ -1,7 +1,12 @@
 
 # 项目小平台
-项目小平台是针对项目中常用的场景进行提炼和封装的框架
-目的是简化开发人员的日常工作，代码必须简单灵活，可理解，可维护，可调错，让开发人员能真正聚焦与业务开发
+项目小平台是项目开发中常用的场景进行提炼和封装
+目标：简化开发人员的日常工作，让开发人员能专注与业务开发，代码应该是
+简单灵活，学习成本低
+可理解，约定大于配置
+可维护，代码零依赖或少依赖，满足单一职责，代码耦合度低
+可调错，出错信息对开发人员友好，尽量还原错误现场
+
 
 ## API
 
@@ -10,7 +15,7 @@
 
 
 ## Quick start
-+ 定义后台服务类和方法，（不限语言，没有小平台项目名称约束）
++ 定义后台服务类和方法
 
 ```C#
 namespace Mysoft.Cbgl.Services
@@ -37,7 +42,7 @@ namespace Mysoft.Cbgl.Services
 <script type="text/javascript" src="/Project/ajax.aspx?type=Mysoft.Cbgl.Services.MonthPlanService"></script>
 ```
 
-+ 在前台脚步调用服务 **注意区分大小写**
++ 在前台脚步调用服务
 
 ```javascript
 function doSendProcess() {

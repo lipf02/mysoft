@@ -13,7 +13,7 @@
 
 ajax使用的ajax.aspx作为服务中转地址
 
-**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，或类名以Service结尾,或者在方法上添加ServiceAttribute特性**
+**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，类名需以Service结尾,或在方法上添加ServiceAttribute特性**
 
 **调用服务方法出现未知异常时，本地访问将弹出异常的完整信息，正式环境将弹出最常见的“系统错误，请联系系统管理员”提示，在前端都将暴露__error__方便开发人员进行排查**
 
