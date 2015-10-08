@@ -1,16 +1,17 @@
 ## API
 
-+ [Entity](/docs/api/entity.md)
++ [Entity](entity.md)
 
-+ [DBHelper](/docs/api/dbhelper.md)
++ [DBHelper](dbhelper.md)
 
-+ [Ajax](/docs/api/ajax.md)
++ [Ajax](ajax.md)
 
 
 ## dbhelper
 DBHelper是数据库访问层，执行sql或实体操作
 
 +  在查询时，可通过位置参数或是对象来传递参数
+
 ```C#
   string sql = @"select ProcessGUID from myWorkflowProcessEntity where  IsHistory=0 and BusinessGUID in
   ( select top 1 MpProcessGUID from  cb_MonthPlan  where planmonth=@0 and buguid=@1)";
@@ -22,6 +23,7 @@ DBHelper是数据库访问层，执行sql或实体操作
   string mpProcessGUID = DBHelper.ExecuteScalarString(sql,new {planMonth=buguid,buguid=@buguid}  );
 }
 ```
+
 + 实体查询
 
 列表查询
@@ -31,7 +33,7 @@ var list = DBHelper.GetList<cb_MonthPlanDtl>("select * from  cb_MonthPlanDtl  wh
 
 ```
 
-单一实体查询
++ 单一实体查询
 
 ```C#
 List<cb_MonthPlanDtl> entitys = DBHelper.First<cb_MonthPlanDtl>("select * from  cb_MonthPlanDtl  where  MonthPlanGUID in (select MonthPlanGUID from cb_MonthPlan where   planmonth=@0 and buguid=@1) and SBState='已确认'  ", planMonth, buguid);
@@ -41,6 +43,7 @@ cb_MonthPlanDtl entity= DBHelper.GetByID<cb_MonthPlanDtl>(guid) ;
 
 
 + 实体增删改
+
 实体更新
 ```C#
            cb_MonthPlanVersion version = new cb_MonthPlanVersion();
@@ -55,7 +58,7 @@ cb_MonthPlanDtl entity= DBHelper.GetByID<cb_MonthPlanDtl>(guid) ;
 
 ```
 
-更新特定字段
++ 更新特定字段
 
 
 ```C#
@@ -69,6 +72,7 @@ cb_MonthPlanDtl entity= DBHelper.GetByID<cb_MonthPlanDtl>(guid) ;
 + 开启事务
 
 ```C#
+
                 using (var trans = DBHelper.BeginTransaction())
                  {
                      mess = new { result = methodInfo.Invoke(instance, paramters) };

@@ -1,10 +1,10 @@
 ## API
 
-+ [Entity](/docs/api/entity.md)
++ [Entity](entity.md)
 
-+ [DBHelper](/docs/api/dbhelper.md)
++ [DBHelper](dbhelper.md)
 
-+ [Ajax](/docs/api/ajax.md)
++ [Ajax](ajax.md)
 
 
 ## entity

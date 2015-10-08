@@ -1,19 +1,18 @@
 ## API
 
-+ [Entity](/docs/api/entity.md)
++ [Entity](entity.md)
 
-+ [DBHelper](/docs/api/dbhelper.md)
++ [DBHelper](dbhelper.md)
 
-+ [Ajax](/docs/api/ajax.md)
++ [Ajax](ajax.md)
 
 
 ## ajax
-项目小平台是对公司小平台的补充，公司的小平台有着一些约束，Service类必须放在以 .Services.dll 结尾的程序集中,Service类名必须以Service结尾
-），而历史的business代码无法使用，小平台对异常和错误的处理机制不清晰，文档上也没有提供指引说明。
+
 
 ajax使用的ajax.aspx作为服务中转地址
 
-**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，或类名以Service结尾**
+**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，或类名以Service结尾,或者在方法上添加ServiceAttribute特性**
 
 **调用服务方法出现未知异常时，本地访问将弹出异常的完整信息，正式环境将弹出最常见的“系统错误，请联系系统管理员”提示，在前端都将暴露__error__方便开发人员进行排查**
 
