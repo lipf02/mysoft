@@ -13,7 +13,7 @@
 
 ajax使用的ajax.aspx作为服务中转地址
 
-**Service类建议放在以.Services.dll或，Business.dll结尾的程序集中，类名需以Service结尾,或在方法上添加ServiceAttribute特性**
+**Service类建议放在以.Services.dll或Business.dll结尾的程序集中，类名需以Service结尾,或在方法上添加ServiceAttribute特性**
 
 **调用服务方法出现未知异常时，本地访问将弹出异常的完整信息，正式环境将弹出最常见的“系统错误，请联系系统管理员”提示，在
 前端都将暴露window\.\_\_error\_\_变量方便开发人员进行排查**
@@ -22,7 +22,7 @@ ajax使用的ajax.aspx作为服务中转地址
 
 + 后端服务方法可以直接传递实体对象，datatable，基础类型，数组等到前端，无须类型转换。
 
-+ 前端js传递参数到后台方法，可以按位置传递，也可传递对象
++ 前端js传递参数到后台方法，可以按参数位置传递
 
 ```javascript
 function doSendProcess() {
@@ -33,7 +33,7 @@ function doSendProcess() {
 	}
 
 ```
-
++ 可传递js对象
 ```javascript
 function doSendProcess() {
   var planMonth=$('#__planMonth').val();

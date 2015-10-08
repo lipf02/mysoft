@@ -21,7 +21,7 @@ DBHelper是数据库访问层，执行sql或实体操作
 
   string sql = @"select ProcessGUID from myWorkflowProcessEntity where  IsHistory=0 and BusinessGUID in
   ( select top 1 MpProcessGUID from  cb_MonthPlan  where planmonth=@planmonth and buguid=@buguid)";
-  string mpProcessGUID = DBHelper.ExecuteScalarString(sql,new {planMonth=buguid,buguid=@buguid}  );
+  string mpProcessGUID = DBHelper.ExecuteScalarString(sql,new {planMonth=buguid,buguid=buguid}  );
 }
 ```
 
