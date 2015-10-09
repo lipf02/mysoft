@@ -12,6 +12,7 @@ using System.Web.Hosting;
 using System.Reflection;
 using HtmlAgilityPack;
 using Mysoft.Project.Core;
+using System.Linq;
 namespace MySoft.Project.Control
 {
     public enum TreeType { None = -1, Group = 0, Company = 1, EndCompany = 2, Dept = 3, Team = 4, ProjectTeam = 5, Project = 6, EndProject = 7 }
@@ -52,7 +53,27 @@ namespace MySoft.Project.Control
 
     public class DDTreeService
     {
-
+        public List<IDDTreeItem> GetDept(string userguid)
+        {
+            var sql = @" SELECT   BUGUID as DeptGUID,BUName as DeptShortName,HierarchyCode as DeptCode from myBusinessUnit 
+            where  BuType in ('1')  AND IsFc=0  and (1=1) order by  HierarchyCode";
+            var list = GetCompany(userguid);
+            var buguids = list.Select(o => o.id).ToArray();
+            var filter = "  CompanyGUID in ('" + string.Join("','", buguids) + "')";
+            sql = sql.Replace("1=1", filter);
+            var table = DBHelper.GetDataTable(sql);
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                var item = new DDTreeItem();
+                var row = table.Rows[i];
+                item.code = row["DeptCode"].ToString();
+                item.id = row["DeptGUID"].ToString();
+                item.name = row["DeptShortName"].ToString();
+                item.type = TreeType.Dept; 
+                list.Add(item);
+            }
+            return list;
+        }
         public List<IDDTreeItem> GetProject(string userguid, string applySys)
         {
             var sql = @"SELECT  p.ProjGUID,       
@@ -74,7 +95,7 @@ WHERE   P.BUGUID = BU.BUGUID
          
             sql = sql.Replace("1=1", " p2.ProjGUID IN   ( " + projs + ") ");
             var table = DBHelper.GetDataTable(sql);
-            //创建临时表
+         
             var list = GetCompany(userguid);
             //var TreeType = { Group: 0, Dept: 1, Team: 2, ProjectTeam: 3, Company: 4, EndCompany: 5, Project: 6, EndProject: 7 }
             for (int i = 0; i < table.Rows.Count; i++)
@@ -106,8 +127,7 @@ WHERE   P.BUGUID = BU.BUGUID
         /// <returns></returns>
         public List<IDDTreeItem> GetCompany(string userguid)
         {        //整棵公司树
-            string strSQL = "SELECT OrderHierarchyCode AS Code,BUGUID AS GUID,BUName AS Name,CASE WHEN IsEndCompany=1 THEN '1' ELSE '0' END AS IsEndCompany, Level, '0' AS IsShow FROM myBusinessUnit WHERE BUType = 0 ORDER BY OrderHierarchyCode";
-            DataTable dtBU = DBHelper.GetDataTable(strSQL);
+            string strSQL = "";         
             userguid = userguid ?? CurrentUser.Current.UserGUID;
             //根据用户岗位获取有权限的公司
             if ((bool)ReflectionHelper.InvokeMethod("Mysoft.Map.Application.Security.User.IsAdmin", "Mysoft.Map.Core", userguid))
@@ -130,8 +150,9 @@ RIGHT OUTER JOIN myUser AS u ON su.UserGUID = u.UserGUID  WHERE u.UserGUID ='" +
                 strSQL += @" UNION SELECT b.OrderHierarchyCode FROM myBusinessUnit AS b INNER JOIN myUser AS u ON u.BUGUID=b.BUGUID
 WHERE u.UserGUID ='" + userguid + "'";
 
-                strSQL = "SELECT b1.BUGUID AS GUID ,BUName AS Name,b1.HierarchyCode AS Code,ISNULL(b1.Level, 0) AS Level,b1.IsEndCompany FROM myBusinessUnit AS b1 INNER JOIN (" + strSQL + ") AS b2 ON b1.OrderHierarchyCode + '.' LIKE b2.OrderHierarchyCode + '.%' WHERE b1.BUType = 0  order by b1.OrderHierarchyCode";
-
+             //   strSQL = "SELECT b1.BUGUID AS GUID ,BUName AS Name,b1.HierarchyCode AS Code,ISNULL(b1.Level, 0) AS Level,b1.IsEndCompany FROM myBusinessUnit AS b1 INNER JOIN (" + strSQL + ") AS b2 ON b1.OrderHierarchyCode + '.' LIKE b2.OrderHierarchyCode + '.%' WHERE b1.BUType = 0  order by b1.OrderHierarchyCode";
+                   strSQL = "SELECT b1.BUGUID  FROM myBusinessUnit AS b1 INNER JOIN (" + strSQL + ") AS b2 ON b1.OrderHierarchyCode + '.' LIKE b2.OrderHierarchyCode + '.%' WHERE b1.BUType = 0 ";
+                   strSQL = "select BUGUID AS GUID ,BUName AS Name,HierarchyCode AS Code,ISNULL(Level, 0) AS Level,IsEndCompany FROM myBusinessUnit where BUGUID in (" + strSQL + ")  order by OrderHierarchyCode";
             }
             var dtRights = DBHelper.GetDataTable(strSQL);
             //创建临时表
@@ -181,7 +202,8 @@ WHERE u.UserGUID ='" + userguid + "'";
                 case TreeType.Dept:
                 case TreeType.ProjectTeam:
                 case TreeType.Team:
-                    return null;
+                    tree.data = GetDept(userguid);
+                    break;
                     //项目
                 case TreeType.Project:
                 case TreeType.EndProject:
@@ -212,6 +234,8 @@ WHERE u.UserGUID ='" + userguid + "'";
                     SetBU(bu);
                     break;
                 case TreeType.Dept:
+                    var bu1 = DBHelper.First<DDTreeItem>("select BUGUID id,BUName name,IsEndCompany isend from myBusinessUnit where buguid in (select CompanyGUID from dbo.myBusinessUnit WHERE buguid=@0)", item.id);
+                    SetBU(bu1);
                     break;
                  
             }
@@ -222,6 +246,7 @@ VALUES  ( @UserGUID ,@ObjType,@ArgGUID,getdate())";
             DBHelper.Execute(updateSql, new { UserGUID = HttpContext.Current.Session["UserGUID"], ObjType = item.type.ToString(), ArgGUID = item.id });
             return string.Empty;
         }
+       
         /// <summary>
         /// 设置当前用户访问的公司
         /// </summary>
@@ -231,6 +256,7 @@ VALUES  ( @UserGUID ,@ObjType,@ArgGUID,getdate())";
         /// <returns></returns>
         public void SetBU(DDTreeItem item)
         {
+         //   if (item.isend == 0) return;
             HttpContext context = HttpContext.Current;
             context.Session["BUGUID"] = item.id;
             context.Session["BUName"] = item.name;
@@ -246,8 +272,9 @@ VALUES  ( @UserGUID ,@ObjType,@ArgGUID,getdate())";
             context.Response.Cookies["mycrm_isendcompany"].Expires = DateTime.Now.AddDays(365);
             ////在临时表中保存当前公司
             ////254类型为 Mysoft.Map.Utility.General
-            if (!ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Utility.GeneralBase.InsertKeywordValue2myTemp", "Mysoft.Map.Core", context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", item.id))
-                ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Utility.General.InsertKeywordValue2myTemp", "Mysoft.Map.Core", context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", item.id);
+            object invokeResult = null;
+            if (!ReflectionHelper.TryInvokeMethod("Mysoft.Map.Utility.GeneralBase.InsertKeywordValue2myTemp", "Mysoft.Map.Core",out invokeResult, context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", item.id))
+                ReflectionHelper.TryInvokeMethod("Mysoft.Map.Utility.General.InsertKeywordValue2myTemp", "Mysoft.Map.Core", out invokeResult, context.Session["UserGUID"] + "_" + context.Session.SessionID, "[当前公司]", item.id);
 
             //// 切换公司时清除桌面部件的缓存
             //ReflectionHelper.InvokeMethodSafe("Mysoft.Map.Caching.MyCache.ClearDeskTempFile", "Mysoft.Map.Core", context.Session["UserGUID"].ToString());

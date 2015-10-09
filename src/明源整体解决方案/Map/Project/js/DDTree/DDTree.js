@@ -3,25 +3,23 @@
     function DDTree(element, options) {
         var that = this;
         var me = that.$element = $(element);
-        that.element = that.$element[0];
+
         me.data('_ddtree', that);
         that.options = options;
         if (!that.options.data) {
-            my.project.invoke(that.options.serviceMethod, that.options, function(data) {
-                that.options.data = data.data;
-                that.options.value = data.value;
-                that.init()
-            })
+            var data = my.project.invoke(that.options.serviceMethod, { applySys: that.options.applySys, treeType: that.options.treeType });
+            data = data || {}
+            that.options.data = data.data || [];
+            that.options.value = data.value || '';
+            that.init()
         } else {
             that.init();
         }
-
-
     }
 
-    var NodeType = { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Team: 4, ProjectTeam: 5, Project: 6, EndProject: 7 }
-    var nodeBgColor = ["#E6E6E6", "#DDDDDD", "#F7EDEA", "#ECF1FF", "#EEFFFF", "#EEFFFF", "#EEFFFF", "#EEFFFF", "#EEFFFF", "#EEFFFF"]
-    var sqlFields = { "0": "bucode", "1": "bucode", "2": "bucode", "3": "JbDeptCode ", "4": "JbDeptCode ", "5": "JbDeptCode ", "6": "ProjectCode", "7": "ProjectCode" }
+    var NodeType = { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Project: 6, EndProject: 7 }
+    var nodeBgColor = { "0": "#DDE0E5", "1": "#E4E7EC", "2": "#EEF0F2", "3": "#F4F5F8", "6": "#F4F5F8", "7": "#F8F9FC" };
+
     //设置默认值
     DDTree.DEFAULTS = {
         data: null //数据源    
@@ -35,16 +33,10 @@
              , showType: NodeType.None //默认展开类型，-1不展开
              , showGroup: true  //是否显示集团
              , showCompany: true //是否显示区域公司
-             , ApplySys: '0201'
-             , afterSetValue: function(item) {
-                 if (!item) return;
-                 var data = { code: item.code, id: item.id, type: item.type, name: item.name };
-                 var error = my.project.invoke('MySoft.Project.Control.DDTreeService.SetValue', data);
-                 if (error) alert(error);
-             }
+             , applySys: '0201'
              , NodeType: { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Team: 4, ProjectTeam: 5, Project: 6, EndProject: 7 }
-
-
+             , nodeBgColor: { "0": "#DDE0E5", "1": "#E4E7EC", "2": "#EEF0F2", "3": "#F4F5F8", "6": "#F4F5F8", "7": "#F8F9FC" }
+, autoSwitchCompany: true //是否自动切换公司
     };
 
     DDTree.prototype.addStyle = function() {
@@ -66,7 +58,11 @@
         that.addStyle();
         that._rootItems = [];
         that._treeKey = {};
+        that._searchHit = {}
+        that._searchShow = {};
+        this._popup = {}
         NodeType = that.options.NodeType
+        nodeBgColor = that.options.nodeBgColor
         $.each(that.options.data, function() {
             var item = this;
             var code = item.code;
@@ -74,6 +70,8 @@
                 return;
 
             if (!that.options.showCompany && item.type == NodeType.Company)
+                return;
+            if (item.type > that.options.treeType)
                 return;
             that._treeKey[code] = item;
             that._treeKey[item.id] = item;
@@ -107,7 +105,6 @@
             if (!_oCtl) {
                 this._oCtl = $('<input type="hidden" id="appQueryCtl' + i + '" />');
                 me.append(this._oCtl);
-
                 break;
             }
         }
@@ -129,8 +126,6 @@
     }
 
     //显示下拉的div
-
-
     DDTree.prototype._expand = function(obj, ev) {
         var $li = $(obj).parents('li:eq(0)');
         var code = $li.prop('code');
@@ -195,6 +190,62 @@
 
     }
 
+
+    //ie popup有bug，无法输入字符字母
+    DDTree.prototype._input = function(o, keyCode) {
+        var that = this;
+
+        //只能输入大小字母和数字
+        var c = keyCode;
+        if (c == 8) { //Back 
+            o.value = o.value.slice(0, -1);
+        } else if (c == 46) { //Del 
+            o.value = o.value.slice(1);
+        } else if (c < 255) {
+
+            o.value += String.fromCharCode(c);
+        }
+        //防止输入过快，重复的执行渲染方法
+        if (that.timer) {
+            clearTimeout(that.timer);
+            that.timer = null;
+        }
+        this._isSearch = true;
+        this._lastSearchText = o.value;
+        that.timer = setTimeout(function() { that._search(o) }, 300);
+
+    }
+
+    DDTree.prototype._select = function(obj) {
+        var $li = $(obj).parents('li');
+        var code = $li.prop('code');
+        options = this.options;
+        var item = this._treeKey[code];
+        if (!item) return;
+
+        this.setValue(code)
+
+
+    }
+
+    DDTree.prototype.hidePopup = function() {
+        if (this._interval) {
+            clearInterval(this._interval);
+        }
+        if (this._txtSearch) {
+            this._txtSearch.value = '';
+            this._lastSearchText = '';
+        }
+        my.project.hidePopup(this.$element[0])
+
+    }
+    DDTree.prototype.showPopup = function(html) {
+        var width = this.options.width || this.$element.width();
+        var height = this.options.height || 300;
+
+        return my.project.showPopup(this.$element[0], html, width, height)
+    }
+
     DDTree.prototype.buildSearchDropDownItem = function(data, arr, indent) {
         var that = this;
         var options = that.options
@@ -209,18 +260,21 @@
             var canSelect = item.type >= options.selectType;
             var selectEvent = 'onclick="_dropdown._select(this)""';
             var highline = ";color:black;";
+            var mouseover = ""
             if (that._selItem == item) {
                 highline += ";background: #CAD3E4;"
-            } else
+            } else {
                 highline += ";background: " + nodeBgColor[item.type]
+                mouseover = 'onmouseover=\'style.backgroundColor="#E3E9F4"\'   onmouseout=\'  style.backgroundColor="' + nodeBgColor[item.type] + '"\'';
+            }
             if (!canSelect) {
                 highline += ";color:grey;"
                 selectEvent = ""
             }
             // '" title="' + item.name +
-            arr.push('<li  code="' + item.code + '"  style="CURSOR: hand; height:20px;line-height:20px; margin-bottom:1px;">');
+            arr.push('<li  code="' + item.code + '"  title="' + item.name + '"   style="CURSOR: hand; height:20px;line-height:20px; margin-bottom:1px;">');
 
-            arr.push('<div href="javascript:void(0)" ' + selectEvent + ' style="vertical-align:middle; CURSOR: hand; height:20px; ' + highline + '"><span>' + indentHtml
+            arr.push('<div href="javascript:void(0)" ' + selectEvent + ' style="vertical-align:middle; CURSOR: hand; height:20px; ' + highline + '"' + mouseover + ' ><span>' + indentHtml
                  + '</span><span  class="icon"  ');
             var expandHandler = '';
             var icon = ''
@@ -263,59 +317,6 @@
         });
 
     }
-
-    //ie popup有bug，无法输入字符字母
-    DDTree.prototype._input = function(o, keyCode) {
-        var that = this;
-
-        //只能输入大小字母和数字
-        var c = keyCode;
-        if (c == 8) { //Back 
-            o.value = o.value.slice(0, -1);
-        } else if (c == 46) { //Del 
-            o.value = o.value.slice(1);
-        } else if (c < 255) {
-
-            o.value += String.fromCharCode(c);
-        }
-        //防止输入过快，重复的执行渲染方法
-        if (that.timer) {
-            clearTimeout(that.timer);
-            that.timer = null;
-        }
-        this._isSearch = true;
-        this._lastSearchText = o.value;
-        that.timer = setTimeout(function() { that._search(o) }, 300);
-
-    }
-
-    DDTree.prototype._select = function(obj) {
-        var $li = $(obj).parents('li');
-        var code = $li.prop('code');
-        options = this.options;
-        var item = this._treeKey[code];
-        if (!item) return;
-        if (this.options.selectType > item.type) return;
-        if (this.options.onchange) {
-            if (this.options.onchange(item) === false) {
-                return;
-            }
-        }
-        this.setValue(code)
-        this.hidePopup();
-
-    }
-
-    DDTree.prototype.hidePopup = function() {
-        if (this._txtSearch) {
-            this._txtSearch.value = '';
-            this._lastSearchText = '';
-        }
-        my.project.hidePopup(this.element)
-
-    }
-
-
     DDTree.prototype.buildDropDownItem = function(data, arr, indent) {
         var that = this;
         var options = that.options
@@ -328,21 +329,24 @@
             var item = this;
             var highline = ";color:black;";
             var canSelect = item.type >= options.selectType;
-            var selectEvent = 'onclick="_dropdown._select(this)""';
+            var selectEvent = 'onclick="_dropdown._select(this)"';
+            var mouseover = "";
             if (that._selItem == item) {
                 highline += ";background: #CAD3E4;"
             }
-            else
+            else {
                 highline += ";background: " + nodeBgColor[item.type]
+                mouseover = 'onmouseover=\'style.backgroundColor="#E3E9F4"\'   onmouseout=\'  style.backgroundColor="' + nodeBgColor[item.type] + '"\'';
+            }
 
             if (!canSelect) {
                 highline += ";color:grey;"
                 selectEvent = ""
             }
             // '" title="' + item.name +
-            arr.push('<li  code="' + item.code + '"  style="CURSOR: hand; height:20px;line-height:20px; margin-bottom:1px;">');
+            arr.push('<li  code="' + item.code + '"  title="' + item.name + '"   style="CURSOR: hand; height:20px;line-height:20px; margin-bottom:1px;">');
 
-            arr.push('<div href="javascript:void(0)" ' + selectEvent + ' style="vertical-align:middle; CURSOR: hand; height:20px; ' + highline + '"><span>' + indentHtml
+            arr.push('<div href="javascript:void(0)" ' + selectEvent + ' style="vertical-align:middle; CURSOR: hand; height:20px; ' + highline + '" ' + mouseover + '><span>' + indentHtml
                  + '</span><span  class="icon"  ');
             var expandHandler = '';
 
@@ -396,11 +400,12 @@
     }
     //设置选中的值,将夫元素展开
     DDTree.prototype.setValue = function(code) {
-
         var item = this._treeKey[code];
         if (!item) return;
         if (this.options.selectType > item.type) return;
-        text = '<span class="text ddt_text">' + item.name + '</span>'
+        text = '<span class="text ddt_text  code="' + item.code + '">' + item.name + '</span>'
+        if (!this.options.showFullText)
+            text = '<span class="readonly" code="' + item.code + '">' + item.name + '</span>'
         this._selItem = item;
         var parentItem = item.parentItem;
         while (parentItem) {
@@ -412,33 +417,78 @@
             parentItem = parentItem.parentItem;
         }
         this.$element.find('#ddtree_text').html(text);
-        var field = sqlFields[item.type];
-        var queryxml = "<filter><condition attribute=\"replace\" operator=\"replace\" value=\"(" + field + "='" + item.code + "' or " + field + " like '" + item.code + ".%') \"/></filter>";
-        this._oCtl.prop('queryxml', queryxml)
-        this.options.afterSetValue && this.options.afterSetValue(item);
+        var filter = "<filter />"
+        var values = [];
+        switch (this.options.treeType) {
+            case NodeType.EndProject:
+            case NodeType.Project:
+                if (item.type == NodeType.EndProject || item.type == NodeType.Project) {
+                    this._getEndIds(item, NodeType.EndProject, values);
+                    filter = ' <filter type="and"><condition operator="in" attribute=\"ProjGUID" value="' + values.join(",") + '"/></filter>'
+
+                }
+                else if (item.type <= NodeType.EndCompany) {
+                    filter = '<filter type="and"><condition operator="api" attribute="ProjGUID" value="' + item.id + '" datatype="buprojectfilter" application="' + this.options.applySys + '"/></filter>'
+                }
+                break;
+            case NodeType.Group:
+            case NodeType.Company:
+            case NodeType.EndCompany:
+                this._getEndIds(item, NodeType.EndCompany, values);
+                filter = ' <filter type="and"><condition operator="in" attribute=\"BUGUID" value="' + values.join(",") + '"/></filter>'
+                break;
+            case NodeType.Dept:
+                filter = '<filter><condition attribute="replace" operator="replace" value=" JbDeptCode=\'' + item.code + '\' or JbDeptCode like \'' + item.code + '.%\' "/></filter>';
+        }
+        this._oCtl.prop('queryxml', filter)
+        var data = { code: item.code, id: item.id, type: item.type, name: item.name, isend: item.isend };
+        if (this.options.autoSwitchCompany) {
+
+            var error = my.project.invoke('MySoft.Project.Control.DDTreeService.SetValue', data);
+            if (error) return alert(error);
+        }
+        if (this.options.onchange) {
+            if (this.options.onchange(data) === false) {
+                return;
+            }
+        }
+        this.hidePopup();
     }
 
+    DDTree.prototype._getEndIds = function(item, nodeType, arr) {
+        if (item.type == nodeType) {
+            arr.push(item.id)
+            return arr;
+        }
+        var children = item.children || [];
+        for (var i = 0; i < children.length; i++) {
+            this._getEndIds(children[i], nodeType, arr);
+        }
+
+    }
     DDTree.prototype.showDropDown = function(e) {
 
         var that = this;
         that._searchHit = {}
+        if (that._interval) {
+            clearInterval(that._interval);
+        }
         that._searchShow = {};
         var arr = [];
         if (this.options.showSearch) {
             arr.push('<TABLE  style="TABLE-LAYOUT: fixed" cellSpacing=0 cellPadding=0 width="100%">');
             arr.push('<TR><TD>');
-            arr.push('<input style="width:100%" type="text" value  id="txtSearch" onkeypress="_dropdown._input(this,event.keyCode)" />');
+            arr.push('<input style="width:100%" type="text" value style="border:1px solid #CAD3E4"  id="txtSearch" onkeypress="_dropdown._input(this,event.keyCode)" />');
             arr.push('</TD></TR></TBODY></TABLE>');
         }
         arr.push('<ul id="treeUL"  style="list-style: none;padding:0 0 ;margin:0 0;font-size: 9pt; font-family: 宋体, Tahoma, Verdana, Arial; width:100%;"  >');
         this.buildDropDownItem(this._rootItems, arr, 0, true)
         arr.push('</ul>');
-        var width = this.options.width || this.$element.width();
-        var height = this.options.height || 300;
+
         // 3、生成下拉菜单
         var html = this.wrapDropdown(arr.join(''));
 
-        var popup = my.project.showPopup(this.element, html, width, height)
+        var popup = this.showPopup(html)
         this._popup = popup
         popup.document.parentWindow._dropdown = this;
 
@@ -448,7 +498,7 @@
             that._txtSearch.value = ''
             that._lastSearchText = '';
             //popbug，无法获取中文输入
-            setInterval(function() {
+            that._interval = setInterval(function() {
                 if (that._txtSearch.value && that._txtSearch.value != that._lastSearchText) {
                     that._lastSearchText = txtSearch.value;
                     that._search(txtSearch);
@@ -479,124 +529,4 @@
 })(jQuery);
 
 
-
-function CompanyTree(option) {
-    var options = DDTreeService.GetCompanyTreeDTO(null);
-    options.icon = "/_imgs/ico_16_10.gif";
-    options.showFullText = false;
-
-    var getMenuIfr = function() {
-        var win = window;
-        while (true) {
-            if (win.refreshByBU)
-                return win;
-            var menuIfr;
-            if (win.frames && win.frames['menu']) {
-                menuIfr = win.frames['menu'];
-            } else {
-                menuIfr = win.parent;
-            }
-            if (win == menuIfr) { return null; }
-            win = menuIfr;
-        }
-    }
-
-    options.onchange = function(item) {
-        DDTreeService.SetBU(item.Guid, item.Name, item.IsEnd);
-        try {
-            var menuIfr = getMenuIfr();
-            if (menuIfr && menuIfr.refreshByBU) {
-                menuIfr.refreshByBU(item.Name);
-
-            }
-        }
-        catch (e) { }
-    }
-
-
-    return this.each(function() {
-        options = $.extend({}, DDTree.DEFAULTS, options, typeof option == 'object' && option)
-        new DDTree(this, options);
-
-    })
-}
-
-
-//$.fn.CompanyTree = CompanyTree
-
-
-//function CompanyMenuTree(option) {
-
-//    addCss(" .ddtree_span{ color:#fff;border:1px solid  #758bb1; font-weight:normal;  display:inline-block} .ddtree_span_active{border-color:#00377a;background:#64799c}  .ddtree_span_click{border-color:#00377a;background:#889DC2 }")
-
-//    var options = {};
-//    options.selectAll = true;
-//    options.icon = "/_imgs/ico_16_10.gif";
-//    options.showFullText = false;
-
-
-
-//    $.fn.DDTree.Constructor.prototype.renderHeader = function() {
-//        var html = [];
-//        //   html.push('<TABLE class="ddtree"  cellSpacing=0 cellPadding=0><TD>');
-//        html.push('<SPAN class="ddtree_span"  style=" padding:4px 5px 0px 5px;height:100%; "  >')
-
-//        html.push('<span ><img style="margin:-1px 6px 0px 8px;vertical-align:top;padding-right:2px" width="16" height="16" src="/expand/img/icon_com1.png" /></span>')
-//        html.push('<span id="ddtree_text" style="padding:0px 1px 0px 0px"></span>')
-//        html.push('<span ><img style="margin:4px 6px 0px 6px;vertical-align:top;" width="7" height="5" src="/expand/img/icon_arrow_down.png" /></span>')
-//        html.push('</SPAN  >')
-//        //    html.push('</TD></TR></TABLE>');
-//        return html.join('')
-//    };
-//    $.fn.DDTree.Constructor.prototype.showDropDown = function(e) {
-//        var arr = [];
-//        arr.push('<ul  style="list-style: none;padding:0 0 ;margin:0 0;font-size: 9pt; font-family: 宋体, Tahoma, Verdana, Arial; width:100%;"  >');
-//        this.buildDropDownItem(this._rootItems, arr, 0, true)
-//        arr.push('</ul>');
-
-//        var width = this.options.width || this.$element.width();
-//        var height = this.options.height || 300;
-//        // 3、生成下拉菜单
-
-//        var html = arr.join('')
-//        var warp = '<div style="width:100%; height:' + height + 'px; border:1px solid #00377a; padding:0px 5x 0px 0px  overflow-y:auto; overflow-x:hidden;">';
-//        warp += '<table cellspacing="0" cellpadding="0" style="height:100%;width:100%" ><tr><td style="background:rgb(136, 157, 194);width:26px;"></td><td style="padding-left:8px;" valign="top">'
-//        var endwarp = '</td></tr></table></div>';
-//        html = warp + html + endwarp
-//        this._oPopUp.document.body.innerHTML = html
-
-//        this._oPopUp.document.parentWindow._dropdown = this;
-//        var oTable = this.$element[0];
-//        //  var offset = this.$element.offset()
-//        showPopup(this._oPopUp, oTable.clientLeft, oTable.clientTop + this.$element.height() - 1, width, height, oTable);
-
-//    };
-
-//    options = $.extend({}, options, typeof option == 'object' && option)
-//    this.CompanyTree(options);
-//    var ddtree = $('.ddtreeWarp').data('_ddtree');
-//    $('.ddtreeWarp').find('.ddtree_span').click(function() {
-
-//        if (!ddtree._oPopUp.isOpen)
-//            $(this).removeClass('ddtree_span_active').addClass('ddtree_span_click');
-//    }).blur(function() {
-//        $(this).removeClass('ddtree_span_click').removeClass('ddtree_span_active');
-//    })
-//        .hover(function() {
-//            if (!ddtree._oPopUp.isOpen)
-//                $(this).removeClass('ddtree_span_click').addClass('ddtree_span_active');
-//        }, function() {
-//            $(this).removeClass('ddtree_span_active');
-//            if (ddtree._oPopUp.isOpen) {
-//                $(this).addClass('ddtree_span_click');
-//            }
-
-//        });
-
-//    //      var ddtree = $('.ddtreeWarp').data('_ddtree');
-//    //        $('.ddtreeWarp').find('.icMenu').on('mouseover', function() { ddtree.showDropDown(); });
-//}
-
-
-//$.fn.CompanyMenuTree = CompanyMenuTree
 

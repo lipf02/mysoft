@@ -63,6 +63,7 @@
     <Compile Include="Ajax\CommonService.cs" />
     <Compile Include="Ajax\IBusiness.cs" />
     <Compile Include="Ajax\ProxyClass.cs" />
+    <Compile Include="Ajax\ServiceAttribute.cs" />
     <Compile Include="Ajax\TypeHelper.cs" />
     <Compile Include="Ajax\ReflectionHelper.cs" />
     <Compile Include="Control\DDTree\DDTreeService.cs" />

@@ -65,7 +65,7 @@ my.project.invoke = function(method, option, callback) {
     var ajaxdone = function(json) {
         if (json.__error__) {
             var parentWin = window.parent;
-            while (parentWin && parentWin != window) {
+            while (parentWin && parentWin != parentWin.parent) {
                 parentWin.__error__ = json.__error__;
                 parentWin = parentWin.parent;
             }

@@ -23,7 +23,19 @@ namespace Mysoft.Project.Ajax
         {
             HttpContext context = HttpContext.Current;
             context.Response.ContentEncoding = System.Text.Encoding.UTF8;
-            var mess = Handle(context);
+            object mess=null;
+            try
+            {
+
+                mess = Handle(context);
+            }
+            catch (Exception ex) {
+                var innerEx = ex.InnerException ?? ex;
+                if (context.Request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase)) {
+                    mess = "alert('" + ex.Message  + "')";
+                }
+                mess = new { __error__ = ex.Message + "\n调用堆栈：" + innerEx.StackTrace };
+            }
             if (mess is string)
             {
                 context.Response.Write(mess);
@@ -33,6 +45,13 @@ namespace Mysoft.Project.Ajax
 
         }
 
+        private static bool IsAllowServiceMethod(MemberInfo method){
+            if (method.DeclaringType.Name.EndsWith("Service", StringComparison.OrdinalIgnoreCase))
+               return true;
+            if (method.GetCustomAttributes(typeof(TransactionAttribute), true).Length > 0)
+                return true;
+            return false;
+        }
         private static object Handle(HttpContext context)
         {
 
@@ -41,56 +60,71 @@ namespace Mysoft.Project.Ajax
             var invokeMethod = request.QueryString["invokeMethod"];
             var typeName = request.QueryString["type"];
             Type type;
-          
+
             //请求前端脚本
             if (string.IsNullOrEmpty(typeName) && request.HttpMethod.Equals("GET", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
-                   
+
                     type = ReflectionHelper.GetType(typeName, assbemlyName);
+
+                 
                     context.Response.AddHeader("Content-Type", "application/x-javascript");
+
                     return GetProxyScript(type, context.Request.Path);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    return "alert('无法加载类型，需要传入正确的type，和 assbemly参数！\n出错信息："+ex.Message+"')";
+                    throw new Exception("无法加载类型，需要传入正确的type，和 assbemly参数！\n出错信息：" + ex.Message, ex);
                 }
             }
 
             object mess = null;
-            MethodInfo methodInfo=null;
+            MethodInfo methodInfo = null;
             try
             {
                 methodInfo = ReflectionHelper.GetMethod(invokeMethod, assbemlyName);
             }
             catch (Exception ex)
             {
-                mess = new { __error__ = "无法调用方法'" + invokeMethod + "'，请检查后台是否存在此方法！\n出错信息："+ex.Message };
-                return JsonConvert.SerializeObject(mess);
+                throw new Exception("无法调用方法'" + invokeMethod + "'，请检查后台是否存在此方法！\n出错信息：" + ex.Message, ex);
+
             }
-           
+
+            if (!IsAllowServiceMethod(methodInfo)) {
+                throw new Exception("方法'" + invokeMethod + "'不满足约定，申明方法的类型需以Service结尾或方法添加ServiceAttribute特性！");
+            }
+
+            ParameterInfo[] paramterInfos = methodInfo.GetParameters();
+            object[] paramters = new object[paramterInfos.Length];
             try
             {
-
-                ParameterInfo[] paramterInfos = methodInfo.GetParameters();
-                object[] paramters = new object[paramterInfos.Length];
                 var json = JObject.Parse(request.Form["postdata"]);
                 for (int i = 0; i < paramterInfos.Length; i++)
                 {
                     Type parameterType = paramterInfos[i].ParameterType;
                     string parameterName = paramterInfos[i].Name;
                     object value = null;
-                    var jvalue = json[parameterName];
-                    if (jvalue == null)
+                    JToken jvalue = null;
+
+                    if (json.TryGetValue(parameterName, StringComparison.OrdinalIgnoreCase, out jvalue))
+                    {
+                        value = jvalue.ToObject(parameterType);
+
+                    }
+                    else
                     {
                         value = json.ToObject(parameterType);
                     }
-                    else {
-                        value = jvalue.ToObject(parameterType);
-                    }
                     paramters[i] = value;
                 }
+            }
+            catch (Exception ex) {
+                throw new Exception("解析方法'" + invokeMethod + "'参数出错，请检查传入参数！\n出错信息：" + ex.Message, ex);
+            }
+            try
+            {
                 type = methodInfo.DeclaringType;
                 object instance = null;
                 if (!methodInfo.IsStatic)
@@ -98,14 +132,14 @@ namespace Mysoft.Project.Ajax
                 //是否开启事务
                 var transAttribute = methodInfo.GetCustomAttributes(typeof(TransactionAttribute), true);
                 var isOpenTrans = true;
-                if (transAttribute.Length > 0 )                  
+                if (transAttribute.Length > 0)
                 {
                     isOpenTrans = ((TransactionAttribute)transAttribute[0]).IsOpen;
                 }
                 else if (methodInfo.Name.StartsWith("get", StringComparison.OrdinalIgnoreCase))
                 {
                     isOpenTrans = false;
-                }               
+                }
 
                 if (isOpenTrans)
                 {
@@ -119,14 +153,14 @@ namespace Mysoft.Project.Ajax
                 {
                     mess = new { result = methodInfo.Invoke(instance, paramters) };
                 }
-
             }
             catch (Exception ex)
             {
-                var innerEx = ex.InnerException ?? ex;
-                mess = new { __error__ = innerEx.Message + innerEx.StackTrace };
-
+                throw new Exception("调用方法'" + invokeMethod + "'失败\n出错信息：" + ex.Message, ex);
             }
+
+
+
 
             return mess;
         }

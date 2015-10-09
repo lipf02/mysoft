@@ -50,9 +50,14 @@ namespace Mysoft.Project.Core
         }
 
 
-        public static bool InvokeMethodSafe(string methodName, string assbemly, params object[] paramArr)
+        public static bool TryInvokeMethod(string methodName, string assbemly,out object value, params object[] paramArr)
         {
-            try { InvokeMethod(methodName, assbemly, paramArr); return true; }
+            value = null;
+            try
+            {
+                value = InvokeMethod(methodName, assbemly, paramArr);
+                return true;
+            }
             catch { return false; }
         }
 

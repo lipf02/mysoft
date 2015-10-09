@@ -45,9 +45,11 @@ my.project.invoke = function(method, option, callback) {
 };
 
 
-my.project.showPopup = function(src, html, popupWidth, popupHeight, x, y) {
-    var x = x || src.clientLeft;
-    var y = y || src.clientTop + $(src).height()
+my.project.showPopup = function(src, html, popupWidth, popupHeight, offsetx, offsety) {
+offsetx = offsetx || 0;
+offsety = offsety || 0;
+    var x = src.clientLeft;
+    var y = src.clientTop + $(src).height()
     src._oPopUp = src._oPopUp || window.createPopup();
     var popup = src._oPopUp;
     popup.document.body.innerHTML = html
@@ -115,7 +117,7 @@ my.project.showPopup = function(src, html, popupWidth, popupHeight, x, y) {
         }
     }
 
-    popup.show(x, y, popupWidth, popupHeight, src);
+    popup.show(x + offsetx, y + offsety, popupWidth, popupHeight, src);
     setTimeout(function() { popup.document.focus() }, 0);
 
     return popup;
@@ -135,3 +137,4 @@ my.project.addCss = function(styleText) {
         style.appendChild(document.createTextNode(styleText));
     document.getElementsByTagName('head')[0].appendChild(style);
 }
+
