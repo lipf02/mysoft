@@ -15,7 +15,7 @@ using Mysoft.Project.Core;
 using System.Linq;
 namespace MySoft.Project.Control
 {
-    public enum TreeType { None = -1, Group = 0, Company = 1, EndCompany = 2, Dept = 3, Team = 4, ProjectTeam = 5, Project = 6, EndProject = 7 }
+    public enum TreeType { None = -1, Group = 0, Company = 10, EndCompany = 20, Dept = 30, Team = 40, ProjectTeam = 50, Project = 60, EndProject = 70 }
     public interface IDDTreeItem
     {
         string code { get; set; }
@@ -193,32 +193,46 @@ WHERE u.UserGUID ='" + userguid + "'";
         /// </summary>
         /// <param name="application"></param>
         /// <returns></returns>
-        public DDTreeDTO<IDDTreeItem> GetDDTreeData( TreeType treeType, string ApplySys)
+        public DDTreeDTO<IDDTreeItem> GetDDTreeData(TreeType treeType, string ApplySys)
         {
             var tree = new DDTreeDTO<IDDTreeItem>();
             var userguid = HttpContext.Current.Session["UserGUID"].ToString();
-            switch (treeType) { 
-                    //部门
+            var value = DBHelper.ExecuteScalarString("select ArgGUID from myCurrArgs where UserGUID=@0 and ObjType=@1", userguid, treeType.ToString());
+            switch (treeType)
+            {
+                //部门
                 case TreeType.Dept:
                 case TreeType.ProjectTeam:
                 case TreeType.Team:
                     tree.data = GetDept(userguid);
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        if (DBHelper.ExecuteScalarInt("select 1 from myBusinessUnit where  BUGUID=@0 and CompanyGUID=@1", value, CurrentUser.Current.BUGUID) != 1)
+                            value = null;
+                    }
                     break;
-                    //项目
+                //项目
                 case TreeType.Project:
                 case TreeType.EndProject:
-                    tree.data = GetProject(userguid, ApplySys);               
+                    tree.data = GetProject(userguid, ApplySys);
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        if (DBHelper.ExecuteScalarInt("SELECT 1 FROM dbo.p_Project WHERE BUGUID=@1 AND ProjGUID=@0", value, CurrentUser.Current.BUGUID) != 1)
+                            value = null;
+                    }
                     break;
-                    //公司
-                default:
-                    tree.data = GetCompany(userguid);                  
-                    break;
-                    
-            }
 
-            tree.value = DBHelper.ExecuteScalarString("select ArgGUID from myCurrArgs where UserGUID=@0 and ObjType=@1", userguid, treeType.ToString());
+                //公司
+                default:
+                    tree.data = GetCompany(userguid);
+                    value = CurrentUser.Current.BUGUID;
+                    break;
+
+            }
+            tree.value = value;
+
             return tree;
-           
+
         }
         public string SetValue(DDTreeItem item) {
             switch (item.type) { 

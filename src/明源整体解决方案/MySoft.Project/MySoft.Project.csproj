@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Ajax\AjaxServiceProxy.cs" />
     <Compile Include="Ajax\CommonService.cs" />
+    <Compile Include="Ajax\HttpResult.cs" />
     <Compile Include="Ajax\IBusiness.cs" />
     <Compile Include="Ajax\ProxyClass.cs" />
     <Compile Include="Ajax\ServiceAttribute.cs" />

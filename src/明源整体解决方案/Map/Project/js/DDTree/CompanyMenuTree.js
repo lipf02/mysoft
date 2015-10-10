@@ -1,4 +1,7 @@
-﻿(function($) {
+﻿define(function(require) {
+    require('jquery')
+    var DDTree = require('./DDTree')
+    var project = require('../project')
     function CompanyMenuTree(option) {
         var css = []
         css.push("  .ddtree_span{ color:#fff;border:1px solid  #758bb1; font-weight:normal;  display:inline-block} ")
@@ -8,7 +11,7 @@
         css.push("  nobr.mnuTitle{ height:100%; } .mnuTitle  span{ height:100%;  padding-top:4px;}")
         css.push(" .mnuTitle   a{ height:100%; padding-top:4px; } .mnuTitle span.ddtreeWarp  { height:100%; padding-top:0px;}");
         css.push(" .mnuTitle .ddtreeWarp  span{ height:100%; padding-top:0px; } #spnCompany { margin-right:10px;}")
-        my.project.addCss(css.join(''));
+        project.addCss(css.join(''));
         var options = {};
         options.icon = "/_imgs/ico_16_10.gif";
         options.showFullText = false;
@@ -25,7 +28,7 @@
 
         lblCurCompany.parent().prepend(span);
 
-        $.fn.DDTree.Constructor.prototype.renderHeader = function() {
+        DDTree.prototype.renderHeader = function() {
             var html = [];
             //   html.push('<TABLE class="ddtree"  cellSpacing=0 cellPadding=0><TD>');
             html.push('<SPAN class="ddtree_span "  style=" padding:4px 5px 0px 5px;height:100%; "  >')
@@ -37,10 +40,10 @@
             //    html.push('</TD></TR></TABLE>');
             return html.join('')
         };
-        $.fn.DDTree.Constructor.prototype.showPopup = function(html) {
+        DDTree.prototype.showPopup = function(html) {
             var width = this.options.width || this.$element.width();
             var height = this.options.height;
-            return my.project.showPopup(this.$element[0], html, width + 160, height, -160)
+            return project.showPopup(this.$element[0], html, width + 120, height, -120)
         }
         var getMenuIfr = function() {
             var win = window;
@@ -60,7 +63,7 @@
 
 
 
-        var defaults = { treeType: 2, selectType: 0, showType: 0, showSearch: false, autoSwitchCompany: true, showSearch: false,height:400 }
+        var defaults = { treeType: 20, selectType: 0, showType: 0, showSearch: false, autoSwitchCompany: true, showSearch: false, height: 400 }
         options = $.extend(defaults, options, typeof option == 'object' && option)
         options.onchange = function(item) {
             $('.ddtreeWarp').find('.ddtree_span').removeClass('ddtree_span_click').removeClass('ddtree_span_active');
@@ -74,32 +77,39 @@
             catch (e) { }
         }
 
-        options.nodeBgColor = { "0": "#FFFFFF", "1": "#FFFFFF", "2": "#FFFFFF", "3": "#FFFFFF" };
-        span.DDTree(options)
-        var ddtree = $('.ddtreeWarp').data('_ddtree');
-        $('.ddtreeWarp').find('.ddtree_span').click(function() {
-            if (!ddtree._popup.isOpen)
-                $(this).removeClass('ddtree_span_active').addClass('ddtree_span_click');
-        }).blur(function() {
-            $(this).removeClass('ddtree_span_click').removeClass('ddtree_span_active');
-        })
+        options.nodeBgColor = { "0": "#FFFFFF", "10": "#FFFFFF", "20": "#FFFFFF", "30": "#FFFFFF" };
+       var ddtree= new  DDTree(span,options)      
+        var interval;
+        $('.ddtreeWarp').find('.ddtree_span')
         .hover(function() {
-            if (!ddtree._popup.isOpen)
-                $(this).removeClass('ddtree_span_click').addClass('ddtree_span_active');
-        }, function() {
-            $(this).removeClass('ddtree_span_active');
-            if (ddtree._popup.isOpen) {
-                $(this).addClass('ddtree_span_click');
+            var span1 = $(this);
+            span1.addClass('ddtree_span_click');
+            if (interval) {
+                clearInterval(interval);
             }
+
+            interval = setInterval(function() {
+                if (!ddtree._popup.isOpen) {
+                    span1.removeClass('ddtree_span_click');
+                    if (interval) {
+                        clearInterval(interval);
+                    }
+                }
+
+            }, 100);
+
+        }, function() {
+            //   $(this).removeClass('ddtree_span_active');
+
 
         });
 
+        $('.ddtreeWarp').on('mouseover', function() {
 
-        //      var ddtree = $('.ddtreeWarp').data('_ddtree');
-        //        $('.ddtreeWarp').find('.icMenu').on('mouseover', function() { ddtree.showDropDown(); });
+            ddtree.showDropDown();
+        });
     }
 
-
-    $.fn.CompanyMenuTree = CompanyMenuTree
-})(jQuery);
-
+    return CompanyMenuTree;
+    //  $.fn.CompanyMenuTree = CompanyMenuTree
+});

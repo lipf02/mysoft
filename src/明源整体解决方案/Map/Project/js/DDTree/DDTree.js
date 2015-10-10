@@ -1,13 +1,21 @@
-﻿(function($) {
+﻿define(function(require) {
+    require('jquery')
+    var project = require('../project')
+
+    var NodeType = {}
+    var nodeBgColor = {};
     //下拉树
     function DDTree(element, options) {
+        if (typeof element === "string" && element.indexOf('#') < 0) {
+            element = '#' + element;
+        }
+        options = $.extend({}, DDTree.DEFAULTS, typeof options == 'object' && options)
         var that = this;
         var me = that.$element = $(element);
-
         me.data('_ddtree', that);
         that.options = options;
         if (!that.options.data) {
-            var data = my.project.invoke(that.options.serviceMethod, { applySys: that.options.applySys, treeType: that.options.treeType });
+            var data = project.invoke(that.options.serviceMethod, { applySys: that.options.applySys, treeType: that.options.treeType });
             data = data || {}
             that.options.data = data.data || [];
             that.options.value = data.value || '';
@@ -17,8 +25,7 @@
         }
     }
 
-    var NodeType = { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Project: 6, EndProject: 7 }
-    var nodeBgColor = { "0": "#DDE0E5", "1": "#E4E7EC", "2": "#EEF0F2", "3": "#F4F5F8", "6": "#F4F5F8", "7": "#F8F9FC" };
+
 
     //设置默认值
     DDTree.DEFAULTS = {
@@ -34,8 +41,8 @@
              , showGroup: true  //是否显示集团
              , showCompany: true //是否显示区域公司
              , applySys: '0201'
-             , NodeType: { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Team: 4, ProjectTeam: 5, Project: 6, EndProject: 7 }
-             , nodeBgColor: { "0": "#DDE0E5", "1": "#E4E7EC", "2": "#EEF0F2", "3": "#F4F5F8", "6": "#F4F5F8", "7": "#F8F9FC" }
+             , NodeType: { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Team: 40, ProjectTeam: 50, Project: 60, EndProject: 70 }
+             , nodeBgColor: { "0": "#DDE0E5", "10": "#E4E7EC", "20": "#EEF0F2", "30": "#F4F5F8", "60": "#F4F5F8", "70": "#F8F9FC" }
 , autoSwitchCompany: true //是否自动切换公司
     };
 
@@ -45,7 +52,7 @@
         css.push(" .ddtree  span.spanOut {  CURSOR: default;  BORDER: #7b9ebd 1px solid; HEIGHT: 19px;FONT-SIZE: 9pt; FONT-FAMILY: 宋体, Tahoma, Verdana, Arial; BORDER-RIGHT: medium none; PADDING-LEFT: 5px; PADDING-top: 1px;  WIDTH: 100% }")
         css.push(" .ddtree span.text{ CURSOR: hand; COLOR: blue; TEXT-DECORATION: underline } ")
         css.push("  .ddtree span.readonly{ CURSOR: hand; } ")
-        my.project.addCss(css.join(''));
+        project.addCss(css.join(''));
     }
 
     DDTree.prototype.init = function() {
@@ -104,13 +111,14 @@
             _oCtl = document.getElementById("#appQueryCtl" + i.toString());
             if (!_oCtl) {
                 this._oCtl = $('<input type="hidden" id="appQueryCtl' + i + '" />');
+                this._oCtl.prop('queryxml', '<filter type="and"><condition attribute="1" value="2" operator="eq"/></filter>')
                 me.append(this._oCtl);
                 break;
             }
         }
 
         if (that.options.value)
-            that.setValue(that.options.value);
+            that.setValue(that.options.value, 1);
 
         me.click(function(e) {
             that.showDropDown(e);
@@ -236,14 +244,14 @@
             this._txtSearch.value = '';
             this._lastSearchText = '';
         }
-        my.project.hidePopup(this.$element[0])
+        project.hidePopup(this.$element[0])
 
     }
     DDTree.prototype.showPopup = function(html) {
         var width = this.options.width || this.$element.width();
         var height = this.options.height || 300;
 
-        return my.project.showPopup(this.$element[0], html, width, height)
+        return project.showPopup(this.$element[0], html, width, height)
     }
 
     DDTree.prototype.buildSearchDropDownItem = function(data, arr, indent) {
@@ -399,7 +407,7 @@
         return html.join('')
     }
     //设置选中的值,将夫元素展开
-    DDTree.prototype.setValue = function(code) {
+    DDTree.prototype.setValue = function(code, isinit) {
         var item = this._treeKey[code];
         if (!item) return;
         if (this.options.selectType > item.type) return;
@@ -442,9 +450,9 @@
         }
         this._oCtl.prop('queryxml', filter)
         var data = { code: item.code, id: item.id, type: item.type, name: item.name, isend: item.isend };
-        if (this.options.autoSwitchCompany) {
+        if (this.options.autoSwitchCompany && !isinit) {
 
-            var error = my.project.invoke('MySoft.Project.Control.DDTreeService.SetValue', data);
+            var error = project.invoke('MySoft.Project.Control.DDTreeService.SetValue', data);
             if (error) return alert(error);
         }
         if (this.options.onchange) {
@@ -507,26 +515,12 @@
 
         }
         this._isSearch = false;
+
     }
+    return DDTree;
 
 
-
-    //插件
-    function Plugin(option) {
-        return this.each(function() {
-            var options = $.extend({}, DDTree.DEFAULTS, typeof option == 'object' && option)
-            new DDTree(this, options);
-
-        })
-    }
-
-
-
-    $.fn.DDTree = Plugin
-    $.fn.DDTree.Constructor = DDTree
-
-
-})(jQuery);
+});
 
 
 

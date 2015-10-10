@@ -305,18 +305,17 @@
     
 </body>
 </html>
- <script type="text/javascript" src="/project/js/jquery.js?v=20150708093851"></script>
-     <script type="text/javascript" src="/project/js/project.js?v=93851"></script>
-      <script type="text/javascript" src="/project/js/ddtree/ddtree.js?v=20150708093851"></script>
+ <script type="text/javascript" src="/project/js/sea.js"></script>
+    
 <script language="javascript" type="text/javascript">
 
-    var TreeType = { None: -1, Group: 0, Company: 1, EndCompany: 2, Dept: 3, Project: 6, EndProject: 7 }    
+    var TreeType = { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Project: 60, EndProject: 70 }    
     var option = {
         onchange: false  //选择元素后的回调函数
             , showSearch: true     //是否显示搜索框
              , treeType: TreeType.EndProject //数据加载类型
              , selectType: TreeType.EndCompany //可以选择的类型
-             , showType: TreeType.Company //默认展开类型，-1不展开
+             , showType: TreeType.EndProject //默认展开类型，-1不展开
              , showGroup: true  //是否显示集团
              , showCompany: true //是否显示区域公司
               , applySys: '0201' //业务系统
@@ -326,10 +325,13 @@
     }
     option.onchange = function(item) {
      //   alert(item.type + "----" + item.id + "-----" + item.name);
-    }
-         $(function() {
-             $('#ddtree').DDTree(option)
-         });
+}
+seajs.use('DDTree', function(ddtree) {
+    var d = new ddtree('ddtree', option);
+});
+//         $(function() {
+//             $('#ddtree').DDTree(option)
+//         });
   
     </script>
 
