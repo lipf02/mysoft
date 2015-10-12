@@ -17,7 +17,7 @@
 
 + [Core](/docs/core)
 
-
++ [Core](/docs/control)
 
 ## Quick start
 + 定义后台服务类和方法
