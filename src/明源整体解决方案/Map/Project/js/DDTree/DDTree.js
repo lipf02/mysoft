@@ -47,12 +47,12 @@
     };
 
     DDTree.prototype.addStyle = function() {
-        var css = []
-        css.push(".ddtreeWarp{  padding:0px 0px ;display:inline-block;text-align:left; }  table.ddtree{TABLE-LAYOUT: fixed; WIDTH: 100%; BACKGROUND-COLOR: white; }")
-        css.push(" .ddtree  span.spanOut {  CURSOR: default;  BORDER: #7b9ebd 1px solid; HEIGHT: 19px;FONT-SIZE: 9pt; FONT-FAMILY: 宋体, Tahoma, Verdana, Arial; BORDER-RIGHT: medium none; PADDING-LEFT: 5px; PADDING-top: 1px;  WIDTH: 100% }")
-        css.push(" .ddtree span.text{ CURSOR: hand; COLOR: blue; TEXT-DECORATION: underline } ")
-        css.push("  .ddtree span.readonly{ CURSOR: hand; } ")
-        project.addCss(css.join(''));
+        var styles = []
+        styles.push(".ddtreeWarp{  padding:0px 0px ;display:inline-block;text-align:left; }  table.ddtree{TABLE-LAYOUT: fixed; WIDTH: 100%; BACKGROUND-COLOR: white; }")
+        styles.push(" .ddtree  span.spanOut {  CURSOR: default;  BORDER: #7b9ebd 1px solid; HEIGHT: 19px;FONT-SIZE: 9pt; FONT-FAMILY: 宋体, Tahoma, Verdana, Arial; BORDER-RIGHT: medium none; PADDING-LEFT: 5px; PADDING-top: 1px;  WIDTH: 100% }")
+        styles.push(" .ddtree span.text{ CURSOR: hand; COLOR: blue; TEXT-DECORATION: underline } ")
+        styles.push("  .ddtree span.readonly{ CURSOR: hand; } ")
+        project.addStyle(styles.join(''));
     }
 
     DDTree.prototype.init = function() {
@@ -159,21 +159,32 @@
         var that = this;
         var $tr = $(obj).parents('tr');
         var searchText = $tr.find('#txtSearch').val();
+        if (searchText != that._lastSearchText) {
+            that._lastSearchText = searchText;
+        }
+        else {
+            return;
+        }
+        if (!searchText) {
+            var c = "1";
+        }
         that._searchHit = {}
         that._searchShow = {};
         var data = that.options.data
         if (!data || data.length == 0) return;
-        for (var i = data.length - 1; i >= 0; i--) {
-            var item = data[i];
-            if (item.name.indexOf(searchText) > -1) {
+        if (searchText) {
+            for (var i = data.length - 1; i >= 0; i--) {
+                var item = data[i];
+                if (item.name.indexOf(searchText) > -1) {
 
-                that._searchHit[item.code] = true;
-                that._searchShow[item.code] = true;
-                var parentItem = item.parentItem;
-                while (parentItem) {
-                    that._searchShow[parentItem.code] = true;
+                    that._searchHit[item.code] = true;
+                    that._searchShow[item.code] = true;
+                    var parentItem = item.parentItem;
+                    while (parentItem) {
+                        that._searchShow[parentItem.code] = true;
 
-                    parentItem = parentItem.parentItem;
+                        parentItem = parentItem.parentItem;
+                    }
                 }
             }
         }
@@ -213,14 +224,6 @@
 
             o.value += String.fromCharCode(c);
         }
-        //防止输入过快，重复的执行渲染方法
-        if (that.timer) {
-            clearTimeout(that.timer);
-            that.timer = null;
-        }
-        this._isSearch = true;
-        this._lastSearchText = o.value;
-        that.timer = setTimeout(function() { that._search(o) }, 300);
 
     }
 
@@ -237,8 +240,8 @@
     }
 
     DDTree.prototype.hidePopup = function() {
-        if (this._interval) {
-            clearInterval(this._interval);
+        if (this._searchTimer) {
+            clearInterval(this._searchTimer);
         }
         if (this._txtSearch) {
             this._txtSearch.value = '';
@@ -478,8 +481,9 @@
 
         var that = this;
         that._searchHit = {}
-        if (that._interval) {
-            clearInterval(that._interval);
+        if (that._searchTimer) {
+            clearInterval(that._searchTimer);
+            that._searchTimer = null;
         }
         that._searchShow = {};
         var arr = [];
@@ -506,15 +510,13 @@
             that._txtSearch.value = ''
             that._lastSearchText = '';
             //popbug，无法获取中文输入
-            that._interval = setInterval(function() {
-                if (that._txtSearch.value && that._txtSearch.value != that._lastSearchText) {
-                    that._lastSearchText = txtSearch.value;
-                    that._search(txtSearch);
-                }
+            that._searchTimer = setInterval(function() {
+                that._search(txtSearch);
+
             }, 100)
 
         }
-        this._isSearch = false;
+
 
     }
     return DDTree;

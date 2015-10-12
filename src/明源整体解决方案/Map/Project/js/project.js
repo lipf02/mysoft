@@ -126,7 +126,7 @@
             ele._oPopUp.hide();
     }
 
-    project.addCss = function(styleText) {
+    project.addStyle = function(styleText) {
         style = document.createElement('style');
         style.setAttribute("type", "text/css");
         if (style.styleSheet)
@@ -136,9 +136,7 @@
         document.getElementsByTagName('head')[0].appendChild(style);
     }
 
-    project.lookup = function(options) {
-        var defualts = { width: 800, height: 552 }
-    }
+ 
     //兼容小平台传参调用
     window.my = window.my || {};
     window.my.project = project;

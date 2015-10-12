@@ -2,7 +2,7 @@
     require('jquery')
     var project = require('../project')
 
-  
+
     //下拉树
     function Selector(element, options) {
         if (typeof element === "string" && element.indexOf('#') < 0) {
@@ -11,7 +11,7 @@
         options = $.extend({}, DDTree.DEFAULTS, typeof options == 'object' && options)
         var that = this;
         var me = that.$element = $(element);
-        me.data('_ddtree', that);
+
         that.options = options;
         if (!that.options.data) {
             var data = project.invoke(that.options.serviceMethod, { applySys: that.options.applySys, treeType: that.options.treeType });
@@ -28,23 +28,17 @@
 
     //设置默认值
     Selector.DEFAULTS = {
-        data: null //数据源    
-        , text: ''
-            , showFullText: true//显示完整的路径名
-            , onchange: false  //选择元素后的回调函数
-            , showSearch: true
-             , serviceMethod: 'MySoft.Project.Control.DDTreeService.GetDDTreeData'
-             , treeType: NodeType.EndProject //数据加载类型
-             , selectType: NodeType.EndProject //可以选择的类型
-             , showType: NodeType.None //默认展开类型，-1不展开
-             , showGroup: true  //是否显示集团
-             , showCompany: true //是否显示区域公司
-             , applySys: '0201'
-             , NodeType: { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Team: 40, ProjectTeam: 50, Project: 60, EndProject: 70 }
-             , nodeBgColor: { "0": "#DDE0E5", "10": "#E4E7EC", "20": "#EEF0F2", "30": "#F4F5F8", "60": "#F4F5F8", "70": "#F8F9FC" }
-, autoSwitchCompany: true //是否自动切换公司
-    };
 
+        title: '' //弹出的选择窗口名称
+            , bindValue: true//绑定的值控件
+            , bindText: false  //绑定的文本控件
+            , searchField: []
+            , columns: []
+            , dataMethod: 'MySoft.Project.Control.DDTreeService.GetDDTreeData'
+            , params: function() { return { buguid: 123 }; }//调用服务器方法前传递的参数
+
+    };
+    var data = project.invoke(tdataMethod, params);
     DDTree.prototype.addStyle = function() {
         var css = []
         css.push(".ddtreeWarp{  padding:0px 0px ;display:inline-block;text-align:left; }  table.ddtree{TABLE-LAYOUT: fixed; WIDTH: 100%; BACKGROUND-COLOR: white; }")

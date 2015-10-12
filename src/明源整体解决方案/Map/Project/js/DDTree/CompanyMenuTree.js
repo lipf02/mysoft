@@ -3,15 +3,15 @@
     var DDTree = require('./DDTree')
     var project = require('../project')
     function CompanyMenuTree(option) {
-        var css = []
-        css.push("  .ddtree_span{ color:#fff;border:1px solid  #758bb1; font-weight:normal;  display:inline-block} ")
-        css.push("  .ddtree_span_active{border-color:#00377a;background:#64799c} ")
-        css.push("  .ddtree_span_click{border-color:#00377a;background:#889DC2 } ")
-        css.push("   table.stdTable{ margin:0px; padding:0px;  }");
-        css.push("  nobr.mnuTitle{ height:100%; } .mnuTitle  span{ height:100%;  padding-top:4px;}")
-        css.push(" .mnuTitle   a{ height:100%; padding-top:4px; } .mnuTitle span.ddtreeWarp  { height:100%; padding-top:0px;}");
-        css.push(" .mnuTitle .ddtreeWarp  span{ height:100%; padding-top:0px; } #spnCompany { margin-right:10px;}")
-        project.addCss(css.join(''));
+        var styles = []
+        styles.push("  .ddtree_span{ color:#fff;border:1px solid  #758bb1; font-weight:normal;  display:inline-block} ")
+        styles.push("  .ddtree_span_active{border-color:#00377a;background:#64799c} ")
+        styles.push("  .ddtree_span_click{border-color:#00377a;background:#889DC2 } ")
+        styles.push("   table.stdTable{ margin:0px; padding:0px;  }");
+        styles.push("  nobr.mnuTitle{ height:100%; } .mnuTitle  span{ height:100%;  padding-top:4px;}")
+        styles.push(" .mnuTitle   a{ height:100%; padding-top:4px; } .mnuTitle span.ddtreeWarp  { height:100%; padding-top:0px;}");
+        styles.push(" .mnuTitle .ddtreeWarp  span{ height:100%; padding-top:0px; } #spnCompany { margin-right:10px;}")
+        project.addStyle(styles.join(''));
         var options = {};
         options.icon = "/_imgs/ico_16_10.gif";
         options.showFullText = false;
