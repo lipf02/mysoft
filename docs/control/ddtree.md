@@ -8,8 +8,9 @@ DDTree是一个通用的选择公司，部门，项目控件
 **由于平台只提供末级公司有过滤权限的末级项目，如要使用集团级或者区域公司的末级项目，
 需要改造存储过程，存储过程的文件路径/project/ddtree/usp_myProjFilterBase.sql**
 
-+ 在页面上使用位置添加div
+##Quick start
 
++ 在页面上使用位置添加div
 
 ```html
 <div id="ddtree"></div>
@@ -21,7 +22,7 @@ DDTree是一个通用的选择公司，部门，项目控件
 
     var TreeType = { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Project: 60, EndProject: 70 }    
     var option = {
-        onchange: false  //选择元素后的回调函数
+              onchange: false  //选择元素后的回调函数
              , treeType: TreeType.EndProject //数据加载类型
              , selectType: TreeType.EndCompany //可以选择的类型
              , showType: TreeType.EndProject //默认展开类型，-1不展开            
@@ -39,12 +40,14 @@ seajs.use('DDTree', function(DDTree) {
 });
 
 ```
+
+
 options
 ====
 
 ```javascript
-  var TreeType = { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Project: 60, EndProject: 70 }  
-{
+var TreeType = { None: -1, Group: 0, Company: 10, EndCompany: 20, Dept: 30, Project: 60, EndProject: 70 }  
+var option= {
             onchange: false  //选择元素后的回调函数
            , showSearch: true     //是否显示搜索框
             , treeType: TreeType.EndProject //数据加载类型
@@ -61,11 +64,12 @@ options
 
 ```
 
-method&Properties
+method&properties
 =====
 \_selItem
 ________
 当前控件选择的item
+
 
 setValue(codeorid)
 ________
