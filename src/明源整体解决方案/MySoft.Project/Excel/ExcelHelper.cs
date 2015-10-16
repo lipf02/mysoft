@@ -22,7 +22,13 @@ namespace Mysoft.Project.Excel
         /// 锁定字段匹配:如$lock:IsDisabeld# 其中IsDisabled用1or0赋值
         /// </summary>
         private Regex REG_Lock = new Regex(@"\$lock:(\w+)\#");
-        
+        /// <summary>
+        /// 导出Excel
+        /// </summary>
+        /// <param name="dirPath">保存文件的根目录:如D:\map\</param>
+        /// <param name="templateFilePath">Excel模版文件路径:如D:\map\upfiles\temp.xls</param>
+        /// <param name="data">匹配Exceml模版的数据源</param>
+        /// <returns></returns>
         public string ExportExcel(string dirPath, string templateFilePath, DataSet data)
         {
             var randCode = Guid.NewGuid().ToString().Replace("-", "");
