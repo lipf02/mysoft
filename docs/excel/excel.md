@@ -37,7 +37,6 @@ ExcelHelper是一个通用的导出Excel解决方案
            $lock:是否锁定字段名，值为1时锁定，值为0时不锁定#或直接指定$（符号）lock:1#锁定
    所有正则关键字只支持小写
    如：
-```html
    <table style="width:200px;border:1px solid #e1e1e1;">
 	<tr>
 		<td colspan="3">课程：$table:0,column:CourseName# 课时：$table:0,column:Period#</td>
@@ -58,4 +57,3 @@ ExcelHelper是一个通用的导出Excel解决方案
 		<td></td>
 	<tr>
 	</table>   
-```
