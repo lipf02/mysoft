@@ -19,14 +19,10 @@ ExcelHelper是一个通用的导出Excel解决方案
 	/// <summary>
 	/// 导出Excel
 	/// </summary>
-	/// <param name="dirPath">
-	/// 临时保存导出Excel的根目录:如D:\map\tempfiles\
-	/// 一定要保证目录的存在
-	/// </param>
 	/// <param name="templateFilePath">Excel模版文件路径:如D:\map\upfiles\temp.xls</param>
 	/// <param name="data">匹配Exceml模版的数据源</param>
 	/// <returns>导出Excel的相对路径</returns>
-	string exportedFilePath = excel.ExportExcel(dirPath[string],templateFilePath[string], data[DataSet]);
+	string exportedFilePath = excel.ExportExcel(templateFilePath[string], data[DataSet]);
 	返回的是生成的文件路径exportedFilePath
 ```
 

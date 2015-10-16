@@ -5,6 +5,7 @@ using NPOI.HSSF.UserModel;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NPOI.SS.UserModel;
+using System.Text;
 
 namespace Mysoft.Project.Excel
 {
@@ -25,12 +26,12 @@ namespace Mysoft.Project.Excel
         /// <summary>
         /// 导出Excel
         /// </summary>
-        /// <param name="dirPath">保存文件的根目录:如D:\map\</param>
         /// <param name="templateFilePath">Excel模版文件路径:如D:\map\upfiles\temp.xls</param>
         /// <param name="data">匹配Exceml模版的数据源</param>
         /// <returns></returns>
-        public string ExportExcel(string dirPath, string templateFilePath, DataSet data)
+        public string ExportExcel(string templateFilePath, DataSet data)
         {
+            string dirPath = AppDomain.CurrentDomain.BaseDirectory;
             var randCode = Guid.NewGuid().ToString().Replace("-", "");
             var dir = "/tempfiles/excel/";
             var excelPath = dir + "/" + randCode + ".xls";
@@ -47,12 +48,43 @@ namespace Mysoft.Project.Excel
                 DrawSheet(sheet, i, data);
 
             }
-
+            CreateRoot(dirPath + dir);
             using (FileStream file = new FileStream(dirPath + excelPath, FileMode.Create))
             {
                 hssfworkbook.Write(file);
             }
             return excelPath;
+        }
+        /// <summary>
+        /// 创建文件夹路径
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        private static string CreateRoot(string root)
+        {
+            string[] roots = root.Split('\\');
+            StringBuilder dirClip = new StringBuilder();
+            for (int n = 0; n < roots.Length; n++)
+            {
+                if (n == 0)
+                {
+                    dirClip.Append(roots[n]);
+                }
+                else
+                {
+                    dirClip.Append(roots[n]);
+                }
+                if (!Directory.Exists(dirClip.ToString()))
+                {
+                    Directory.CreateDirectory(dirClip.ToString());
+                }
+                dirClip.Append("\\");
+            }
+            if (!Directory.Exists(dirClip.ToString()))
+            {
+                Directory.CreateDirectory(dirClip.ToString());
+            }
+            return dirClip.ToString();
         }
 
         /// <summary>
