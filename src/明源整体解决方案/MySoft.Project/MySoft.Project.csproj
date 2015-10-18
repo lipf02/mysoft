@@ -82,6 +82,7 @@
     <EmbeddedResource Include="Core\Ajax\AjaxServiceProxy.js">
       <CustomToolNamespace>Mysoft.Project.Ajax</CustomToolNamespace>
     </EmbeddedResource>
+    <Content Include="lib\Ajax.dll" />
     <Content Include="lib\DCSoft.RTF.dll" />
     <Content Include="lib\dmach.Mail.dll" />
     <Content Include="lib\DocumentFormat.OpenXml.dll" />
@@ -101,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Control\XmlCheck\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

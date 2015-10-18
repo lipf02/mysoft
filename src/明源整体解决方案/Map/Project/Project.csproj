@@ -38,6 +38,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ajax, Version=5.7.22.2, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MySoft.Project\lib\Ajax.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -64,12 +68,20 @@
     <Reference Include="System.Web.Mobile" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppForm.aspx.cs">
+      <DependentUpon>AppForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AppForm.aspx.designer.cs">
+      <DependentUpon>AppForm.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ajax.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AppForm.aspx" />
     <Content Include="Entity\Entity.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Entity.cs</LastGenOutput>
@@ -96,6 +108,22 @@
     <Content Include="js\Selector\Selector.htm">
       <SubType>ASPXCodeBehind</SubType>
     </Content>
+    <Content Include="js\XmlCheck\AppForm\AppForm.js" />
+    <Content Include="js\XmlCheck\AppForm\Blank.js" />
+    <Content Include="js\XmlCheck\AppForm\Common.js" />
+    <Content Include="js\XmlCheck\AppForm\Datetime.js" />
+    <Content Include="js\XmlCheck\AppForm\Hidden.js" />
+    <Content Include="js\XmlCheck\AppForm\Hyperlink.js" />
+    <Content Include="js\XmlCheck\AppForm\Lookup.js" />
+    <Content Include="js\XmlCheck\AppForm\Memo.js" />
+    <Content Include="js\XmlCheck\AppForm\Number.js" />
+    <Content Include="js\XmlCheck\AppForm\Password.js" />
+    <Content Include="js\XmlCheck\AppForm\Radio.js" />
+    <Content Include="js\XmlCheck\AppForm\Section.js" />
+    <Content Include="js\XmlCheck\AppForm\Select.js" />
+    <Content Include="js\XmlCheck\AppForm\Tab.js" />
+    <Content Include="js\XmlCheck\AppForm\Text.js" />
+    <Content Include="js\XmlCheck\Jquery\jquery.contextmenu.r2.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="js\DDTree\ddttreeupdate.json" />
