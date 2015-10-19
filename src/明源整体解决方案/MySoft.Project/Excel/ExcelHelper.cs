@@ -23,6 +23,33 @@ namespace Mysoft.Project.Excel
         /// 锁定字段匹配:如$lock:IsDisabeld# 其中IsDisabled用1or0赋值
         /// </summary>
         private Regex REG_Lock = new Regex(@"\$lock:(\w+)\#");
+
+
+        public string ExportExcel(List<TitleEntity> title, DataTable data)
+        {
+            DataSet ds = new DataSet();
+            ds.Tables.Add(data);
+            string dirPath = AppDomain.CurrentDomain.BaseDirectory;
+            var randCode = Guid.NewGuid().ToString().Replace("-", "");
+            var dir = "/tempfiles/excel/";
+            var excelPath = dir + "/" + randCode + ".xls";
+            HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+            HSSFSheet sheet = hssfworkbook.CreateSheet() as HSSFSheet;
+            HSSFRow rowTitle = sheet.CreateRow(0) as HSSFRow;
+            HSSFRow rowBind = sheet.CreateRow(1) as HSSFRow;
+            for (int n = 0; n < title.Count; n++)
+            {
+                rowTitle.CreateCell(n).SetCellValue(title[n].TextName);
+                rowBind.CreateCell(n).SetCellValue("$table:0,column:" + title[n].FieldName + "#$each:row#");
+            }
+            DrawSheet(sheet, 0, ds);
+            CreateRoot(dirPath + dir);
+            using (FileStream file = new FileStream(dirPath + excelPath, FileMode.Create))
+            {
+                hssfworkbook.Write(file);
+            }
+            return excelPath;
+        }
         /// <summary>
         /// 导出Excel
         /// </summary>
@@ -97,6 +124,13 @@ namespace Mysoft.Project.Excel
         private void MyInsertRow(HSSFSheet sheet, int rowIndex, DataRowCollection rows, HSSFRow row)
         {
             int rowCount = rows.Count;
+            for (int n = 0; n < rowIndex + 1 + rowCount; n++)
+            {
+                if (sheet.GetRow(n) == null)
+                {
+                    sheet.CreateRow(n);
+                }
+            }
             sheet.ShiftRows(rowIndex + 1, sheet.LastRowNum, rowCount - 1, true, false);
             short rowHeight = row.Height;
             for (int m = row.FirstCellNum; m < row.LastCellNum; m++)

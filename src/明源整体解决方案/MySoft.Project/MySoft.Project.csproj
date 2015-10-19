@@ -76,6 +76,7 @@
     <Compile Include="Core\DB\TransactionScope.cs" />
     <Compile Include="Excel\ExcelHelper.cs" />
     <Compile Include="Excel\ExcelTemplateParser.cs" />
+    <Compile Include="Excel\TitleEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

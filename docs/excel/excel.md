@@ -24,6 +24,17 @@ ExcelHelper是一个通用的导出Excel解决方案
 	/// <returns>导出Excel的相对路径</returns>
 	string exportedFilePath = excel.ExportExcel(templateFilePath[string], data[DataSet]);
 	返回的是生成的文件路径exportedFilePath
+
+        List<TitleEntity> titles = new List<TitleEntity>();
+        titles.Add(new TitleEntity("fieldName", "titleShowName")); 
+	/// <summary>
+	/// 导出Excel
+	/// </summary>
+	/// <param name="titles">表头的相关信息</param>
+	/// <param name="data">匹配Exceml模版的数据源</param>
+	/// <returns>导出Excel的相对路径</returns>
+        string exportedFilePath = excel.ExportExcel(titles[List<TitleEntity>], data[DataSet]);
+	返回的是生成的文件路径exportedFilePath
 ```
 
 
